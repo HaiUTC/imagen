@@ -1,0 +1,23 @@
+{
+  "entryFile": "src/frame-works/web-server/express.ts",
+  "noImplicitAdditionalProperties": "ignore",
+  "controllerPathGlobs": ["src/**/*.route.ts"],
+  "spec": {
+    "outputDirectory": "src/build",
+    "basePath": "/api/v1",
+    "specVersion": 3
+  },
+  "routes": {
+    "basePath": "/api/v1",
+    "routesDir": "src/build",
+    "middleware": "express"
+  },
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"],
+      "tsoa": ["./node_modules/tsoa/dist"],
+      "middlewareTemplate": "./tsoa-template.ts.hbs"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "include": ["src", "../../types/shared-kernel.d.ts"],
+  "exclude": ["dist", "js", "build", "node_modules", ".eslintrc.js"],
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "lib": ["esnext", "DOM"],
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "target": "esnext",
+    "module": "commonjs",
+    "strict": true,
+    "allowJs": true,
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "noEmit": false,
+    "typeRoots": ["../../types"],
+    "paths": {
+      "~/*": ["./src/*"],
+      "tsoa": ["./node_modules/tsoa/dist"]
+    },
+    "sourceMap": true,
+    "inlineSources": true,
+
+    // Set `sourceRoot` to  "/" to strip the build path prefix
+    // from generated source code references.
+    // This improves issue grouping in Sentry.
+    "sourceRoot": "/"
+  }
+}
