@@ -20,14 +20,16 @@ module.exports = {
     },
     {
       name: "imagen_frontend",
-      script: "pnpm",
-      args: "preview --port 3001",
+      script: "npm",
+      args: ["run", "preview"],
       cwd: "./client",
       env: {
         NODE_ENV: "development",
+        PORT: 3001,
       },
       env_production: {
         NODE_ENV: "production",
+        PORT: 3001,
       },
       watch: false,
       autorestart: true,
