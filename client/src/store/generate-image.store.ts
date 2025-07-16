@@ -35,12 +35,7 @@ export const useGenerateImageStore = create<GenerateImageStore>((set) => ({
     reference_image: null,
   },
   loadingGenerateImage: false,
-  imageGeneratedUrl: [
-    {
-      id: 1,
-      url: "https://mbosethldhseoyvfihje.supabase.co/storage/v1/object/public/images//screenshot_mcx631wf1jzv.jpeg",
-    },
-  ],
+  imageGeneratedUrl: [],
   errorGenerateImage: "",
   setLoadingGenerateImage: (loadingGenerateImage: boolean) => {
     set({ loadingGenerateImage });
