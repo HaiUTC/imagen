@@ -26,7 +26,7 @@ export const useGenerateImageStore = create<GenerateImageStore>((set) => ({
   userPrompt: "",
   referenceImage: null,
   customInstructions: {
-    model: "normal",
+    model: "plus",
     // theme_type: 'e-commerce',
     // section_type: 'hero',
     aspect_ratio: "4:3",
