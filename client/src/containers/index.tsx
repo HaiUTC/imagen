@@ -31,7 +31,7 @@ export default function AppImage() {
                 { id: "text_to_image", content: "Text to Image" },
                 {
                   id: "image_reference",
-                  content: "Image reference (single reference)",
+                  content: "Image reference",
                 },
               ]}
               fitted
