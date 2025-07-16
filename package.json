@@ -1,37 +1,31 @@
 {
-  "name": "imagen",
+  "name": "imagen-workspace",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "private": true,
+  "description": "Imagen multimodal AI project workspace",
   "scripts": {
-    "dev": "nodemon --watch src/frame-works/web-server/routes -x tsoa spec-and-routes & nodemon",
-    "build": "pnpm tsoa && tsc",
-    "tsoa": "tsoa spec-and-routes"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.51.0",
-    "@tsoa/cli": "^6.6.0",
-    "@tsoa/runtime": "^6.6.0",
-    "base64-arraybuffer": "^1.0.2",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
-    "express": "^5.1.0",
-    "morgan": "^1.10.0",
-    "multer": "^2.0.1",
-    "openai": "^5.9.0",
-    "swagger-ui-express": "^5.0.1",
-    "tsoa": "^6.6.0"
+    "dev": "concurrently \"pnpm --filter imagen-server dev\" \"pnpm --filter imagen-client dev\"",
+    "build": "pnpm --filter imagen-server build && pnpm --filter imagen-client build",
+    "build:server": "pnpm --filter imagen-server build",
+    "build:client": "pnpm --filter imagen-client build",
+    "start:server": "pnpm --filter imagen-server start",
+    "start:client": "pnpm --filter imagen-client preview",
+    "clean": "pnpm --filter imagen-server exec rm -rf dist && pnpm --filter imagen-client exec rm -rf dist",
+    "install:all": "pnpm install && pnpm --filter imagen-server install && pnpm --filter imagen-client install",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "pm2:delete": "pm2 delete ecosystem.config.js",
+    "pm2:logs": "pm2 logs",
+    "pm2:status": "pm2 status",
+    "deploy": "pnpm build && pnpm pm2:restart"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
-    "@types/multer": "^2.0.0",
-    "@types/swagger-ui-express": "^4.1.8",
-    "nodemon": "^3.1.10",
-    "prettier": "^3.6.2",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.8.3"
-  }
+    "concurrently": "^9.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@10.7.0"
 }

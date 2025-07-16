@@ -1,6 +1,6 @@
 {
-  "include": ["src", "../../types/shared-kernel.d.ts"],
-  "exclude": ["dist", "js", "build", "node_modules", ".eslintrc.js"],
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", ".eslintrc.js", "node_modules/@hapi/**/*"],
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "lib": ["esnext", "DOM"],
@@ -19,17 +19,14 @@
     "baseUrl": ".",
     "outDir": "./dist",
     "noEmit": false,
-    "typeRoots": ["../../types"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "paths": {
       "~/*": ["./src/*"],
       "tsoa": ["./node_modules/tsoa/dist"]
     },
     "sourceMap": true,
     "inlineSources": true,
-
-    // Set `sourceRoot` to  "/" to strip the build path prefix
-    // from generated source code references.
-    // This improves issue grouping in Sentry.
     "sourceRoot": "/"
   }
 }

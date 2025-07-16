@@ -83,7 +83,7 @@ export const createImagenService = () => {
         aspect_ratio: custom_instructions.aspect_ratio.replace(':', 'x'),
         magic_prompt: 'ON',
         num_images: +custom_instructions.number_output,
-        rendering_speed: 'QUALITY',
+        rendering_speed: 'DEFAULT',
         style_type: custom_instructions.style === 'realistic' ? 'REALISTIC' : 'GENERAL',
       }),
     });
