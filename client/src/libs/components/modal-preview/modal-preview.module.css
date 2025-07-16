@@ -1,0 +1,191 @@
+/* Root container - establish stacking context */
+.preview-container {
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.preview-container.modal-active {
+  z-index: 1000;
+}
+
+/* Grid container */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--column-grid-mp), 1fr);
+  grid-template-rows: repeat(var(--row-grid-mp), 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Image wrapper - establish stacking context */
+.image-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+  overflow: visible;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.image-wrapper.selected {
+  z-index: 1001;
+}
+
+/* Grid images */
+.grid-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  cursor: pointer;
+  border-radius: 4px;
+  display: block;
+  z-index: 1;
+
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+.grid-image.selected {
+  position: fixed !important;
+  cursor: pointer;
+  object-fit: contain;
+  border-radius: 4px;
+  z-index: 1002;
+}
+
+/* Overlay - proper z-index in hierarchy */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  min-width: 100vw;
+
+  background-color: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+
+  z-index: 999;
+  cursor: pointer;
+
+  transition: background-color 0.2s ease, backdrop-filter 0.2s ease;
+
+  pointer-events: all;
+  overflow: hidden;
+}
+
+.modal-overlay.active {
+  background-color: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(6px);
+}
+
+/* 🔥 NEW: Modal Button Styling */
+.modal-button {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px); /* Start below viewport */
+
+  /* Button styling */
+
+  /* High z-index to appear above everything */
+  z-index: 1003;
+
+  /* Smooth animation */
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s ease,
+    box-shadow 0.2s ease;
+
+  /* Shadow for depth */
+
+  /* Prevent text selection */
+  user-select: none;
+
+  /* Ensure it doesn't interfere with overlay clicks */
+  pointer-events: all;
+}
+
+.button {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: none;
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-button.active {
+  transform: translateX(-50%) translateY(0); /* Slide up into view */
+}
+
+/* Alternative button styles - you can choose */
+.modal-button .primary {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-button .danger {
+  background: rgba(199, 10, 36, 1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Performance optimizations */
+.image-wrapper {
+  will-change: transform, z-index;
+  contain: layout style;
+}
+
+.modal-overlay {
+  will-change: background-color, backdrop-filter;
+  contain: layout style;
+}
+
+.modal-button {
+  will-change: transform;
+  contain: layout style;
+  display: flex;
+  gap: 10px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .image-grid {
+    max-width: 95%;
+    gap: 12px;
+  }
+
+  .image-wrapper {
+    height: 150px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .modal-overlay {
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
+  }
+
+  /* Mobile button adjustments */
+  .modal-button {
+    bottom: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}

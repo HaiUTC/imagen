@@ -1,0 +1,11 @@
+.promptInput {
+  position: relative;
+}
+.promptInput :global(.Polaris-Label) {
+  width: 100%;
+}
+
+.upload :global(.Polaris-DropZone) {
+  min-height: auto;
+  height: 30px;
+}
