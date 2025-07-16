@@ -4,11 +4,13 @@ import type { GenerateImageServicePort } from "../../domain/ports/generate-image
 const createGenerateImageService = (): GenerateImageServicePort => ({
   generateImage: async (formData) => {
     try {
-      console.log("make request: ", import.meta.env.BE_CDN);
-      const data = (await fetch(`${import.meta.env.BE_CDN}/generative/image`, {
-        method: "POST",
-        body: formData,
-      }).then(async (res) => await res.json())) as string[];
+      const data = (await fetch(
+        `${import.meta.env.VITE_APP_BE_CDN}/generative/image`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      ).then(async (res) => await res.json())) as string[];
 
       return data;
     } catch (error) {
