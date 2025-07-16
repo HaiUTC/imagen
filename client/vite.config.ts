@@ -17,13 +17,6 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    proxy: {
-      "/generative": {
-        target: "http://localhost:4001/api/v1",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
   },
   preview: {
     port: 3001,
