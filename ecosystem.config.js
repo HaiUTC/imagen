@@ -20,16 +20,11 @@ module.exports = {
     },
     {
       name: "imagen_frontend",
-      script: "npm",
-      args: ["run", "preview"],
+      script: "npx",
+      args: ["serve", "-s", "dist", "-l", "3001"],
       cwd: "./client",
       env: {
-        NODE_ENV: "development",
-        PORT: 3001,
-      },
-      env_production: {
         NODE_ENV: "production",
-        PORT: 3001,
       },
       watch: false,
       autorestart: true,
