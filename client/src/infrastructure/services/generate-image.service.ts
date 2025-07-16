@@ -4,7 +4,7 @@ import type { GenerateImageServicePort } from "../../domain/ports/generate-image
 const createGenerateImageService = (): GenerateImageServicePort => ({
   generateImage: async (formData) => {
     try {
-      const data = (await fetch("/generative/image", {
+      const data = (await fetch(`${import.meta.env.BE_CDN}/generative/image`, {
         method: "POST",
         body: formData,
       }).then(async (res) => await res.json())) as string[];
