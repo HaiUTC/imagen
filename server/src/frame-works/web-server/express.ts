@@ -3,8 +3,10 @@ import morgan from 'morgan';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import { RegisterRoutes } from '~/build/routes';
+import instanceMongodb from '../database/connection';
 
 const isProduction = process.env.NODE_ENV === 'production';
+instanceMongodb.connect();
 
 export const app = express();
 

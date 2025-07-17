@@ -80,7 +80,6 @@ export const StyleOption: React.FC = () => {
               placeholder="e.g. 3D, Digital art, ..."
               value={customStyleValue}
               onFocus={onSubmitCustomStyle}
-              maxLength={12}
               onBlur={() => setCustomStyle(false)}
               focused={customStyle}
               onChange={onChangeCustomStyle}

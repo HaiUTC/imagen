@@ -45,11 +45,10 @@ export const generateImageFlow = async (
       url: image,
     }));
 
-    console.log("imagesMap", imagesMap);
-
     setImageGeneratedUrl(imagesMap);
 
     setLoadingGenerateImage(false);
+    setErrorGenerateImage("");
   } catch (error) {
     setErrorGenerateImage(
       (error as Error).message as string | "Failed to generate image"

@@ -1,10 +1,11 @@
-import { TextField, Box, Divider } from "@shopify/polaris";
+import { TextField, Box, Divider, InlineError } from "@shopify/polaris";
 import { urlToFile } from "../../utils/url-2-file";
 import { SettingsGenerate } from "../settings/settings-generate";
 import { SkeletonImageGenerated } from "../skeleton";
 import styles from "./prompt-only.module.css";
 import { useGenerateImageStore } from "../../../store/generate-image.store";
 import { type ModalPreviewAction, ModalPreview } from "../modal-preview";
+import { Fragment } from "react/jsx-runtime";
 
 export interface PromptOnlyProps {
   onChangeTab: (tab: number) => void;
@@ -16,6 +17,7 @@ export const PromptOnly: React.FC<PromptOnlyProps> = ({ onChangeTab }) => {
     customInstructions,
     imageGeneratedUrl,
     loadingGenerateImage,
+    errorGenerateImage,
     onChangeUserPrompt,
     onChangeCustomInstructions,
   } = useGenerateImageStore();
@@ -77,12 +79,23 @@ export const PromptOnly: React.FC<PromptOnlyProps> = ({ onChangeTab }) => {
       </div>
       <Divider borderWidth="025" />
       <Box paddingBlockStart="300">
-        {loadingGenerateImage ? (
-          <SkeletonImageGenerated
-            n={Number(customInstructions.number_output) || 1}
-          />
+        {errorGenerateImage ? (
+          <Box paddingBlockStart="300">
+            <InlineError
+              message={errorGenerateImage}
+              fieldID="error_generate_image"
+            />
+          </Box>
         ) : (
-          <ModalPreview images={imageGeneratedUrl} actions={actions} />
+          <Fragment>
+            {loadingGenerateImage ? (
+              <SkeletonImageGenerated
+                n={Number(customInstructions.number_output) || 1}
+              />
+            ) : (
+              <ModalPreview images={imageGeneratedUrl} actions={actions} />
+            )}
+          </Fragment>
         )}
       </Box>
     </Box>

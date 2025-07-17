@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { CustomInstructions } from '~/domains/entities/generate-image.entity';
-import { SYSTEM_PROMPT_GENERATE_IMAGE } from '../data/prompt.data';
+import { SYSTEM_PROMPT_ENHANCE_PROMPT, SYSTEM_PROMPT_GENERATE_IMAGE } from '../data/prompt.data';
 
 export const createImagenService = () => {
   const openai = new OpenAI({
@@ -25,6 +25,35 @@ export const createImagenService = () => {
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL as string,
       messages,
+    });
+
+    return response.choices[0].message.content || '';
+  };
+
+  const enrichUserPromptGenerateImageReference = async (prompt: string, imageReference: string, style: string = 'realistic') => {
+    const response = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL as string,
+      messages: [
+        {
+          role: 'system',
+          content: SYSTEM_PROMPT_ENHANCE_PROMPT,
+        },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: {
+                url: imageReference,
+              },
+            },
+            {
+              type: 'text',
+              text: `Here is user prompt "${prompt}" with ${style} style`,
+            },
+          ],
+        },
+      ],
     });
 
     return response.choices[0].message.content || '';
@@ -92,26 +121,34 @@ export const createImagenService = () => {
     return data.data.map((item: any) => item.url);
   };
 
-  const generateImagenMixed = async (prompt: string, custom_instructions: CustomInstructions) => {
+  const generateImagenMixed = async (prompt: string, imageReference: string) => {
     try {
-      const formData = new FormData();
-      formData.append('image', custom_instructions.reference_image as Blob);
-      formData.append('prompt', prompt);
-      formData.append('aspect_ratio', custom_instructions.aspect_ratio.replace(':', 'x'));
-      formData.append('magic_prompt', 'ON');
-      formData.append('num_images', custom_instructions.number_output);
-      formData.append('style_type', custom_instructions.style === 'realistic' ? 'REALISTIC' : 'GENERAL');
-
-      const response = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/ideogram/v1/ideogram-v3/remix`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.VISION_API_KEY}`,
+      const data = await fetch(
+        `${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/replicate/v1/models/black-forest-labs/flux-kontext-pro/predictions`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${process.env.VISION_API_KEY}`,
+          },
+          body: JSON.stringify({
+            input: {
+              prompt,
+              input_image: imageReference,
+            },
+          }),
         },
-        body: formData,
-      });
+      ).then(async res => await res.json());
 
-      const data = await response.json();
-      return data.data.map((item: any) => item.url);
+      if (data.urls?.stream) {
+        const response = await fetch(data.urls.stream);
+        if (!response.ok) {
+          console.log('Error fetching stream: ', data);
+        }
+
+        return [data.urls.stream];
+      }
+
+      return [];
     } catch (error) {
       console.error(error);
       return [];
@@ -120,6 +157,7 @@ export const createImagenService = () => {
 
   return {
     magicPromptImageGenerate,
+    enrichUserPromptGenerateImageReference,
     generateImagen,
     generateImagePro,
     generateImagenMixed,
