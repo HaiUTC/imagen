@@ -1,6 +1,6 @@
 import { TextField, Box, Divider, InlineError } from "@shopify/polaris";
 import { urlToFile } from "../../utils/url-2-file";
-import { SettingsGenerate } from "../settings/settings-generate";
+import { SettingsGenerate } from "../imagen-editor/generate/settings/settings-generate";
 import { SkeletonImageGenerated } from "../skeleton";
 import styles from "./prompt-only.module.css";
 import { useGenerateImageStore } from "../../../store/generate-image.store";
@@ -56,16 +56,6 @@ export const PromptOnly: React.FC<PromptOnlyProps> = ({ onChangeTab }) => {
     <Box paddingBlockEnd="200">
       <div className={styles.promptInput}>
         <TextField
-          // label={
-          //   <InlineStack align="space-between" blockAlign="center">
-          //     <Box paddingInlineStart="200">
-          //       <Text as="span">Prompt (Required)</Text>
-          //     </Box>
-          //     <Box paddingInlineEnd="200">
-          //       <CustomInstruction customInstructions={customInstructions} setCustomInstructions={onChangeCustomInstructions} />
-          //     </Box>
-          //   </InlineStack>
-          // }
           label="Prompt"
           requiredIndicator={true}
           multiline={5}

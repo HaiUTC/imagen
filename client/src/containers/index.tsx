@@ -1,52 +1,22 @@
-import { AppProvider, Box, InlineStack, Page, Tabs } from "@shopify/polaris";
+import { AppProvider, Box } from "@shopify/polaris";
 import polarisTranslations from "@shopify/polaris/locales/en.json";
-import { useState } from "react";
-import { useGenerateImageStore } from "../store/generate-image.store";
-import { PromptOnly } from "../libs/components/prompt-only";
-import { PromptImageReference } from "../libs/components/image-reference";
+import { ImagenContainer } from "../libs/components/imagen-container";
+import { ImagenEditor } from "../libs/components/imagen-editor";
+import { ImageGenPreviewContainer } from "../libs/components/imagen-preview";
+import { ImagenSideBar } from "../libs/components/imagen-sidebar";
+import { useImagenStore } from "../store/imagen.store";
 
 export default function AppImage() {
-  const [tab, setTab] = useState<number>(0);
-
-  const { customInstructions, onChangeCustomInstructions } =
-    useGenerateImageStore.getState();
-
-  const handleSelectTab = (tab: number) => {
-    setTab(tab);
-    if (tab === 1) {
-      onChangeCustomInstructions({
-        ...customInstructions,
-        model: "pro",
-      });
-    }
-  };
-
+  const { format } = useImagenStore();
   return (
     <AppProvider i18n={polarisTranslations}>
-      <Page fullWidth>
-        <InlineStack align="center">
-          <Box width="70%">
-            <Tabs
-              tabs={[
-                { id: "text_to_image", content: "Text to Image" },
-                {
-                  id: "image_reference",
-                  content: "Image reference",
-                },
-              ]}
-              fitted
-              selected={tab}
-              onSelect={handleSelectTab}
-            />
-            <Box paddingBlock="300">
-              {tab === 0 && <PromptOnly onChangeTab={handleSelectTab} />}
-              {tab === 1 && (
-                <PromptImageReference onChangeTab={handleSelectTab} />
-              )}
-            </Box>
-          </Box>
-        </InlineStack>
-      </Page>
+      <Box background="bg-surface">
+        <ImagenContainer>
+          <ImagenSideBar />
+          <ImagenEditor type={format} />
+          <ImageGenPreviewContainer />
+        </ImagenContainer>
+      </Box>
     </AppProvider>
   );
 }

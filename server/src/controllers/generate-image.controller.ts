@@ -1,40 +1,61 @@
+import { downloadImageGeneratedFlow } from '~/applications/flow/download-image.flow';
 import { generateImageFlow } from '~/applications/flow/generate-image.flow';
 import { uid } from '~/applications/utils/uid';
-import { GenerateImagePort } from '~/domains/ports/generate-image.port';
+import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { imagenRepository } from '~/frame-works/database/repositories/imagen.repository';
 import { supabaseService } from '~/infrastructures/services/supabase.service';
 
 const generateImage = async (input: GenerateImagePort) => {
-  const { image, reference } = await generateImageFlow(input);
-
-  const uniqueId = uid();
+  const { images, reference, taskId } = await generateImageFlow(input);
   const imagePublicUrls: string[] = [];
 
-  if (Array.isArray(image)) {
+  if (Array.isArray(images)) {
     await Promise.all(
-      image.map(async item => {
+      images.map(async item => {
+        const uniqueId = uid();
+        const imagePublicUrl = await supabaseService.uploadImageToSupabase(item.value, 'url', uniqueId);
+        imagePublicUrls.push(imagePublicUrl);
+      }),
+    );
+  }
+
+  await imagenRepository.create({
+    format: 'generate',
+    data: {
+      prompt: input.user_prompt,
+      aspectRatio: input.custom_instructions.aspect_ratio,
+      n: input.custom_instructions.n,
+      style: input.custom_instructions.style,
+      reference: reference || undefined,
+    },
+    taskId,
+    imagens: imagePublicUrls,
+  });
+
+  return { images: imagePublicUrls, taskId };
+};
+
+const downloadImageGenerated = async ({ option, id }: { option: string; id: string }) => {
+  const imagePublicUrls: string[] = [];
+
+  const images = await downloadImageGeneratedFlow(option, id);
+
+  if (Array.isArray(images)) {
+    await Promise.all(
+      images.map(async item => {
         const uniqueId = uid();
         const imagePublicUrl = await supabaseService.uploadImageToSupabase(item, 'url', uniqueId);
         imagePublicUrls.push(imagePublicUrl);
       }),
     );
-  } else if (image.value) {
-    const imagePublicUrl = await supabaseService.uploadImageToSupabase(image.value, image.type, uniqueId);
-    imagePublicUrls.push(imagePublicUrl);
   }
 
-  await imagenRepository.create({
-    prompt: input.user_prompt,
-    model: input.custom_instructions.model,
-    aspectRatio: input.custom_instructions.aspect_ratio,
-    style: input.custom_instructions.style,
-    reference: reference || undefined,
-    imagens: imagePublicUrls,
-  });
+  await imagenRepository.update(id, imagePublicUrls);
 
-  return imagePublicUrls;
+  return { images: imagePublicUrls };
 };
 
 export const GenerateImageService = {
   generateImage,
+  downloadImageGenerated,
 };

@@ -1,9 +1,7 @@
 export interface CustomInstructions {
-  model: string;
-  number_output: string;
-  theme_type: string;
-  section_type: string;
+  prompt: string;
+  n: number;
   aspect_ratio: string;
   style: string;
-  reference_image: File | null;
+  images: File[] | null;
 }

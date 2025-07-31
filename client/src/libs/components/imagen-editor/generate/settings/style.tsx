@@ -1,38 +1,23 @@
 import { Box, Listbox, Divider, TextField } from "@shopify/polaris";
 import { useState } from "react";
-import { DEFAULT_STYLE_GEN } from "../../constants";
-import { Popover } from "../popover";
-import { useGenerateImageStore } from "../../../store/generate-image.store";
+import { DEFAULT_STYLE_GEN } from "../../../../constants";
+import { Popover } from "../../../popover";
+import { useImagenStore } from "../../../../../store/imagen.store";
 
 export const StyleOption: React.FC = () => {
-  const { customInstructions, onChangeCustomInstructions } =
-    useGenerateImageStore();
+  const { data, format, onChangeDataValue } = useImagenStore();
 
   const [customStyle, setCustomStyle] = useState<boolean>(false);
   const [customStyleValue, setCustomStyleValue] = useState<string>("");
 
-  const handleChangeCustomInstructions = (
-    key: string,
-    value: string,
-    isCustom: boolean = false
-  ) => {
-    onChangeCustomInstructions({
-      ...customInstructions,
-      [key]: value,
-    });
-    if (!isCustom) {
-      setCustomStyle(false);
-    }
-  };
-
   const onChangeCustomStyle = (value: string) => {
     setCustomStyleValue(value);
-    handleChangeCustomInstructions("style", value, true);
+    onChangeDataValue(format, "style", value);
   };
 
   const onSubmitCustomStyle = () => {
     if (customStyleValue) {
-      handleChangeCustomInstructions("style", customStyleValue);
+      onChangeDataValue(format, "style", customStyleValue);
       setCustomStyle(true);
     }
   };
@@ -40,7 +25,7 @@ export const StyleOption: React.FC = () => {
   return (
     <Popover
       title={
-        DEFAULT_STYLE_GEN.find((model) => model.id === customInstructions.style)
+        DEFAULT_STYLE_GEN.find((model) => model.id === data.generate.style)
           ?.name ||
         customStyleValue ||
         "Realistic"
@@ -56,13 +41,13 @@ export const StyleOption: React.FC = () => {
       >
         <Listbox
           accessibilityLabel="Listbox with Action example"
-          onSelect={(value) => handleChangeCustomInstructions("style", value)}
+          onSelect={(value) => onChangeDataValue(format, "style", value)}
         >
           {DEFAULT_STYLE_GEN.map((model) => (
             <Listbox.Option
               key={model.id}
               value={model.id}
-              selected={customInstructions.model === model.name}
+              selected={data.generate.style === model.name}
             >
               {model.name}
             </Listbox.Option>

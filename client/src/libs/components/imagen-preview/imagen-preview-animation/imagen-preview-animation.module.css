@@ -1,0 +1,40 @@
+.flying_icon {
+  position: absolute;
+  top: 30%;
+  left: calc(50% - 20px);
+  transform: translate(-30%, -50%);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 9999;
+}
+
+.flying_icon:nth-child(1) {
+  --start-left: 25%;
+  --start-bottom: 3%;
+  width: 100px;
+  height: 100px;
+}
+
+.flying_icon_text {
+  position: absolute;
+  top: 38%;
+  left: calc(50% - 5px);
+  transform: translate(-38%, -50%);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  animation: flying_icon_text_animation 1.4s linear infinite;
+}
+
+@keyframes flying_icon_text_animation {
+  0% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}

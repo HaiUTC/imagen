@@ -1,0 +1,15 @@
+.option {
+  width: 100%;
+  cursor: pointer;
+  border-radius: var(--p-border-radius-100);
+}
+
+.option:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(48, 48, 48, 1);
+}
+
+.option.active {
+  background: rgba(0, 0, 0, 0.05);
+  color: rgba(48, 48, 48, 1);
+}

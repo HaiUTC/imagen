@@ -1,0 +1,45 @@
+.generate_container {
+  padding: var(--p-space-050);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.generate {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.submit {
+  width: 100%;
+  background-color: #2b2c39;
+  color: #fff;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 50px;
+  justify-content: center;
+  line-height: 16px;
+  overflow: hidden;
+  padding: 20px 24px;
+  position: relative;
+  transition: all 0.3s ease-in;
+  transition: background-color 0.1s ease;
+}
+
+.submit:hover {
+  background-color: #14161b;
+}
+
+.submit svg {
+  fill: #fff;
+}

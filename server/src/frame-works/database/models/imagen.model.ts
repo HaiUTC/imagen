@@ -1,11 +1,18 @@
 import { model, Schema, SchemaDefinition } from 'mongoose';
 
 export interface ImagenDataValue {
-  model: string;
-  prompt: string;
-  aspectRatio: string;
-  style: string;
-  reference?: string;
+  format: string;
+  data: {
+    model?: string;
+    prompt?: string;
+    aspectRatio?: string;
+    style?: string;
+    reference?: string[];
+    n?: number;
+    image?: string;
+    enriched_prompt?: string;
+  };
+  taskId?: string;
   imagens: string[];
 }
 
@@ -13,26 +20,10 @@ export interface ImagenDbModel extends SchemaDefinition<ImagenDataValue> {}
 
 const ImagenSchema = new Schema<ImagenDbModel>(
   {
-    model: {
-      type: String,
-    },
-    prompt: {
-      type: String,
-      required: true,
-    },
-    aspectRatio: {
-      type: String,
-      required: true,
-    },
-    style: {
-      type: String,
-    },
-    reference: {
-      type: String,
-    },
-    imagens: {
-      type: [String],
-    },
+    format: { type: String, required: true },
+    data: { type: Schema.Types.Mixed, required: true },
+    taskId: { type: String, required: false },
+    imagens: { type: [String], required: true },
   },
   { timestamps: true },
 );

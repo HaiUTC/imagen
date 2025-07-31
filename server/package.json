@@ -23,6 +23,7 @@
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
     "openai": "^5.9.0",
+    "sharp": "^0.33.0",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0"
   },

@@ -1,0 +1,91 @@
+.button {
+  background: #fff;
+  align-items: center;
+  border: none;
+  border-radius: 6px;
+  column-gap: 6px;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  justify-content: center;
+  line-height: 16px;
+  padding: 7px 12px;
+  -webkit-transition: background 0.3s ease;
+  transition: background 0.3s ease;
+  box-shadow: 0 0 10px 0 rgba(192, 196, 205, 0.3);
+}
+
+.button:hover {
+  background: #f3f4f7;
+  transition: background 0.3s ease;
+}
+
+.download {
+  display: flex;
+  margin: 5px 5px 5px 15px;
+  transition: transform 0.3s ease, color 0.3s ease, -webkit-transform 0.3s ease;
+}
+
+.image_format {
+  cursor: pointer;
+  padding: 12px;
+  background: #fafbfc;
+  border: 1px solid #e1e5eb;
+  border-radius: 6px;
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 12px;
+  position: relative;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+  width: 100%;
+  text-align: center;
+}
+
+.image_format.active {
+  background: #2b2c39;
+  border: 1px solid #2b2c39;
+  color: #fff;
+  transition: 0.3s;
+}
+
+.image_format span {
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+}
+
+.submit {
+  width: 100%;
+  background-color: #2b2c39;
+  color: #fff;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: flex;
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 50px;
+  justify-content: center;
+  line-height: 16px;
+  overflow: hidden;
+  padding: 20px 24px;
+  position: relative;
+  transition: all 0.3s ease-in;
+  transition: background-color 0.1s ease;
+}
+
+.submit:hover {
+  background-color: #14161b;
+}
+
+.submit svg {
+  fill: #fff;
+}

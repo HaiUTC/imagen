@@ -1,44 +1,42 @@
-import { GenerateImagePort } from '~/domains/ports/generate-image.port';
+import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { imagenService } from '~/infrastructures/services/imagen.service';
 import { uid } from '../utils/uid';
 import { supabaseService } from '~/infrastructures/services/supabase.service';
-
-const getModel = (level: string) => {
-  if (level === 'normal') return 'imagen-3.0-generate-002';
-  if (level === 'plus') return 'imagen4';
-  if (level === 'pro') return 'ideogram-generate-v3';
-  if (level === 'ultra') return 'imagen4-ultra';
-};
+import { imageURLToBase64 } from '../utils/image-converter.util';
 
 export const generateImageFlow = async (input: GenerateImagePort) => {
   try {
     const { user_prompt, custom_instructions } = input;
-    const { model } = custom_instructions;
+    const { n, images, aspect_ratio } = custom_instructions;
 
-    if (model === 'pro') {
-      if (custom_instructions.reference_image) {
-        const imageUploadSupaBase = await supabaseService.uploadImageToSupabase(
-          URL.createObjectURL(custom_instructions.reference_image as Blob),
-          'url',
-          uid(),
-        );
-        const promptEnrichment = await imagenService.enrichUserPromptGenerateImageReference(
-          user_prompt,
-          imageUploadSupaBase,
-          custom_instructions.style,
-        );
-        console.log('promptEnrichment', promptEnrichment);
-        const image = await imagenService.generateImagenMixed(promptEnrichment, imageUploadSupaBase);
-        console.log('Image: ', image);
-        return { image, reference: imageUploadSupaBase };
-      } else {
-        const image = await imagenService.generateImagePro(user_prompt, custom_instructions);
-        return { image };
-      }
+    if (images) {
+      const imageUploadSupaBases = await Promise.all(
+        images.map(async image => {
+          const imageUploadSupaBase = await supabaseService.uploadImageToSupabase(URL.createObjectURL(image as Blob), 'url', uid());
+          return imageUploadSupaBase;
+        }),
+      );
+
+      const imagesBase64Reference = await Promise.all(
+        imageUploadSupaBases.map(async image => {
+          const imageBase64 = await imageURLToBase64(image);
+          return imageBase64;
+        }),
+      );
+
+      const userMagicPrompt = await imagenService.magicPromptUserImageReference(user_prompt, imageUploadSupaBases);
+
+      const { images: imagesGenerated, taskId } = await imagenService.generateImagenMixed(
+        userMagicPrompt,
+        aspect_ratio,
+        imagesBase64Reference,
+      );
+
+      return { images: imagesGenerated, reference: imageUploadSupaBases, taskId };
     } else {
       const magicPrompt = await imagenService.magicPromptImageGenerate(user_prompt, custom_instructions);
-      const image = await imagenService.generateImagen(magicPrompt, custom_instructions.aspect_ratio, getModel(model));
-      return { image };
+      const images = await imagenService.generateImagen(magicPrompt, aspect_ratio, n);
+      return { images };
     }
   } catch (error) {
     console.log('Fail to generate image: ', error);

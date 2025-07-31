@@ -1,10 +1,10 @@
 import { Box, Divider, DropZone, TextField } from "@shopify/polaris";
-import { SettingsGenerate } from "../settings/settings-generate";
 import { ModalPreview, type ModalPreviewAction } from "../modal-preview";
 import { SkeletonImageGenerated } from "../skeleton";
 import { urlToFile } from "../../utils/url-2-file";
 import styles from "../prompt-only/prompt-only.module.css";
 import { useGenerateImageStore } from "../../../store/generate-image.store";
+import { SettingsGenerate } from "../imagen-editor/generate/settings/settings-generate";
 
 export interface PromptImageReferenceProps {
   onChangeTab: (tab: number) => void;
@@ -102,7 +102,7 @@ export const PromptImageReference: React.FC<PromptImageReferenceProps> = ({
           </div>
         </Box>
       </div>
-      <SettingsGenerate isReferenceImage={true} />
+      <SettingsGenerate />
       <Divider borderWidth="025" />
       <Box paddingBlockStart="300">
         {loadingGenerateImage ? (
