@@ -20,7 +20,7 @@ export const GenerateImageEditor: React.FC = () => {
     _rejectedFiles: File[]
   ) => {
     onChangeDataValue(format, "image", acceptedFiles);
-    setGeneratedImages("generate", []);
+    setGeneratedImages(format, []);
   };
 
   const validImageTypes = [
@@ -31,10 +31,10 @@ export const GenerateImageEditor: React.FC = () => {
   ];
 
   const fileUpload = <DropZone.FileUpload />;
-  const uploadedFiles = data.generate.image?.length !== 0 && (
+  const uploadedFiles = data[format].image?.length !== 0 && (
     <Box paddingBlockStart="200">
       <InlineStack gap="200">
-        {data.generate.image?.map((image) => (
+        {data[format].image?.map((image) => (
           <LegacyStack key={image.name} alignment="center">
             <img
               src={window.URL.createObjectURL(image)}
@@ -66,7 +66,10 @@ export const GenerateImageEditor: React.FC = () => {
             Text to Image
           </Text>
           <Text as="span" tone="subdued" variant="bodyMd">
-            Generate images from text and image reference
+            {/* Generate images from text and image reference */}
+            {format === "generate"
+              ? "Gen ảnh không giống ảnh reference nhưng thực tế hơn và thời gian gen nhanh hơn"
+              : "Gen ảnh không giống ảnh reference nhưng thực tế hơn và thời gian gen nhanh hơn"}
           </Text>
         </InlineStack>
       </Box>
@@ -78,7 +81,7 @@ export const GenerateImageEditor: React.FC = () => {
           multiline={5}
           name="prompt"
           autoComplete="off"
-          value={data.generate.prompt}
+          value={data[format].prompt}
           placeholder="Please describe your creative ideas for the image"
           onChange={(value) => onChangeDataValue(format, "prompt", value)}
         />

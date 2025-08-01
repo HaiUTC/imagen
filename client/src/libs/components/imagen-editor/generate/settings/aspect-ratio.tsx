@@ -8,7 +8,7 @@ export const AspectRatio: React.FC = () => {
 
   return (
     <Popover
-      title={data.generate.aspect_ratio}
+      title={data[format].aspect_ratio}
       fixed
       button={{ variant: "tertiary" }}
     >
@@ -22,7 +22,7 @@ export const AspectRatio: React.FC = () => {
             <Listbox.Option
               key={model.id}
               value={model.id}
-              selected={data.generate.aspect_ratio === model.name}
+              selected={data[format].aspect_ratio === model.name}
             >
               {model.name}
             </Listbox.Option>

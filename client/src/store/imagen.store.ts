@@ -11,14 +11,12 @@ import { create } from "zustand";
 
 interface ImagenValue {
   generate: GenerateValue;
-  remove_background: RemoveBackgroundValue;
-  reframe: ReframeValue;
+  generate_v2: GenerateValue;
 }
 
 interface GeneratedImagesValue {
   generate: string[];
-  remove_background: string[];
-  reframe: string[];
+  generate_v2: string[];
 }
 
 interface GenerateValue {
@@ -27,16 +25,6 @@ interface GenerateValue {
   aspect_ratio: string;
   style: string;
   image?: File[];
-}
-
-interface RemoveBackgroundValue {
-  image: File[];
-}
-
-interface ReframeValue {
-  image: File[];
-  resolution: string;
-  n: number;
 }
 
 export interface ImagenStore {
@@ -68,8 +56,7 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   loadingDownload: false,
   generatedImages: {
     generate: [],
-    remove_background: [],
-    reframe: [],
+    generate_v2: [],
   },
   data: {
     generate: {
@@ -79,13 +66,12 @@ export const useImagenStore = create<ImagenStore>((set) => ({
       style: "realistic",
       image: [],
     },
-    remove_background: {
-      image: [],
-    },
-    reframe: {
-      image: [],
-      resolution: "1024x1024",
+    generate_v2: {
+      prompt: "",
       n: 1,
+      aspect_ratio: "3:4",
+      style: "realistic",
+      image: [],
     },
   },
   setFormat: (format: keyof ImagenValue) => {

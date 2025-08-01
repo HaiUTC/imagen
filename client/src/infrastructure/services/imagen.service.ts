@@ -6,8 +6,7 @@ interface ImagenServicePort {
     option: string;
     id: string;
   }) => Promise<{ images: string[] }>;
-  removeBackground: (formData: FormData) => Promise<{ images: string[] }>;
-  reframeImage: (formData: FormData) => Promise<{ images: string[] }>;
+  generateImageWithImagen: (data: FormData) => Promise<{ images: string[] }>;
 }
 
 const createImagenService = (): ImagenServicePort => {
@@ -34,23 +33,12 @@ const createImagenService = (): ImagenServicePort => {
 
       return response.json();
     },
-    removeBackground: async (formData: FormData) => {
+    generateImageWithImagen: async (data: FormData) => {
       const response = await fetch(
-        `${import.meta.env.VITE_APP_BE_CDN}/remove-background`,
+        `${import.meta.env.VITE_APP_BE_CDN}/image/advanced`,
         {
           method: "POST",
-          body: formData,
-        }
-      );
-
-      return response.json();
-    },
-    reframeImage: async (formData: FormData) => {
-      const response = await fetch(
-        `${import.meta.env.VITE_APP_BE_CDN}/reframe`,
-        {
-          method: "POST",
-          body: formData,
+          body: data,
         }
       );
 

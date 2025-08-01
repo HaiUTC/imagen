@@ -28,28 +28,18 @@ export const imagenSubmitFlow = async () => {
       const { images, taskId } = await imagenService.generateImage(formData);
       setTaskIdGenerated(taskId);
       setGeneratedImages("generate", images);
-    } else if (format === "remove_background") {
-      if (
-        !data.remove_background?.image ||
-        data.remove_background.image.length === 0
-      ) {
-        throw new Error("No image selected for background removal");
+    } else if (format === "generate_v2") {
+      formData.append("prompt", data.generate_v2.prompt);
+      formData.append("n", data.generate_v2.n.toString());
+      formData.append("aspect_ratio", data.generate_v2.aspect_ratio);
+      formData.append("style", data.generate_v2.style);
+      if (data.generate_v2.image) {
+        data.generate_v2.image.forEach((image) => {
+          formData.append("images", image);
+        });
       }
-
-      const selectedImage = data.remove_background.image[0];
-      if (!selectedImage) {
-        throw new Error("Selected image is invalid");
-      }
-
-      formData.append("image", selectedImage);
-      const { images } = await imagenService.removeBackground(formData);
-      setGeneratedImages("remove_background", images);
-    } else if (format === "reframe") {
-      formData.append("image", data.reframe.image[0]);
-      formData.append("resolution", data.reframe.resolution);
-      formData.append("n", data.reframe.n.toString());
-      const { images } = await imagenService.reframeImage(formData);
-      setGeneratedImages("reframe", images);
+      const { images } = await imagenService.generateImageWithImagen(formData);
+      setGeneratedImages("generate_v2", images);
     }
   } catch (error) {
     console.error("Error in imagenSubmitFlow:", error);

@@ -112,8 +112,8 @@ Input: [One or more original images, plus an optional user prompt.]
 Output: [One creative, detailed prompt per input set, faithfully describing the scene(s) for use in an AI image generator. Output only the prompt(s), and always finish each with the camera view information.]
 `;
 
-export const SYSTEM_PROMPT_USER_IMAGE_REFERENCE_2 = `
-  You are an expert prompt engineer for advanced AI image generation models. Your task is to analyze and interpret the provided input—consisting of one or more original images and, optionally, a user prompt. For each input, generate one clear, photorealistic, and richly detailed prompt suitable for guiding an AI image generator to faithfully recreate or thoughtfully reimagine the scene.
+export const SYSTEM_PROMPT_USER_IMAGE_REFERENCE_FOR_IMAGEN = `
+You are an expert prompt engineer for advanced AI image generation models. Your task is to analyze and interpret the provided input—consisting of one or more original images and, optionally, a user prompt. For each input, generate one clear, photorealistic, and richly detailed prompt suitable for guiding an AI image generator to faithfully recreate or thoughtfully reimagine the scene.
 
 Follow these rules strictly:
 

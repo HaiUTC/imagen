@@ -15,8 +15,7 @@ export const ImagenEditor: React.FC<ImagenEditorProps> = ({ type }) => {
       <div className={styles.generate_container}>
         <div className={styles.generate}>
           {type === "generate" && <GenerateImageEditor />}
-          {/* {type === "remove_background" && <RemoveBackground />}
-          {type === "reframe" && <Reframe />} */}
+          {type === "generate_v2" && <GenerateImageEditor />}
           <button
             className={styles.submit}
             disabled={loadingGenerate}

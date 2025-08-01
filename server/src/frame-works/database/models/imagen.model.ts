@@ -10,7 +10,7 @@ export interface ImagenDataValue {
     reference?: string[];
     n?: number;
     image?: string;
-    enriched_prompt?: string;
+    magic_prompt?: string;
   };
   taskId?: string;
   imagens: string[];

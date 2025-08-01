@@ -20,6 +20,12 @@ export const ImagenSideBar: React.FC = () => {
           isActive={format === "generate"}
           onClick={() => setFormat("generate")}
         />
+        <OptionImagenDetail
+          icon="generate"
+          label="Generate V2"
+          isActive={format === "generate_v2"}
+          onClick={() => setFormat("generate_v2")}
+        />
         {/* <OptionImagenDetail
           icon="upscale"
           label="Upscale"

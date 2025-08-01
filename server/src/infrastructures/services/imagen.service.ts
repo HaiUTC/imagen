@@ -1,6 +1,10 @@
 import OpenAI from 'openai';
 import { CustomInstructions } from '~/domains/entities/generate-image.entity';
-import { SYSTEM_PROMPT_GENERATE_IMAGE, SYSTEM_PROMPT_USER_IMAGE_REFERENCE } from '../data/prompt.data';
+import {
+  SYSTEM_PROMPT_GENERATE_IMAGE,
+  SYSTEM_PROMPT_USER_IMAGE_REFERENCE,
+  SYSTEM_PROMPT_USER_IMAGE_REFERENCE_FOR_IMAGEN,
+} from '../data/prompt.data';
 
 export const createImagenService = () => {
   const openai = new OpenAI({
@@ -33,6 +37,38 @@ export const createImagenService = () => {
       {
         role: 'system',
         content: SYSTEM_PROMPT_USER_IMAGE_REFERENCE,
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: user_prompt,
+          },
+        ],
+      },
+    ];
+
+    imageReference.forEach(image => {
+      (messages[1].content as OpenAI.Chat.Completions.ChatCompletionContentPart[]).push({
+        type: 'image_url',
+        image_url: { url: image, detail: 'high' },
+      });
+    });
+
+    const response = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL as string,
+      messages,
+    });
+
+    return response.choices[0].message.content || '';
+  };
+
+  const magicPromptUserImageReferenceForImagen = async (user_prompt: string, imageReference: string[]) => {
+    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+      {
+        role: 'system',
+        content: SYSTEM_PROMPT_USER_IMAGE_REFERENCE_FOR_IMAGEN,
       },
       {
         role: 'user',
@@ -126,9 +162,8 @@ export const createImagenService = () => {
           Authorization: `Bearer ${process.env.VISION_API_KEY}`,
         },
         body: JSON.stringify({
-          prompt: `${prompt} --v 7 --ar ${aspect_ratio} --raw`,
+          prompt: `${prompt} --v 7 --ar ${aspect_ratio} --iw 2 --q 2`,
           base64Array: imageReference,
-          state: '',
           botType: 'MID_JOURNEY',
           notifyHook: '',
         }),
@@ -204,9 +239,35 @@ export const createImagenService = () => {
     return image;
   };
 
+  const generateImagenMixedWithImagen = async (prompt: string, aspect_ratio: string = '1:1') => {
+    const generateImage = async () => {
+      const image = await fetch(`${process.env.OPENAI_BASE_URL}/images/generations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.VISION_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: 'imagen4-fast',
+
+          prompt,
+          response_format: 'url',
+          aspect_ratio,
+        }),
+      }).then(async res => await res.json());
+      return image.data[0].url;
+    };
+
+    const images = await Promise.all(Array.from({ length: 4 }, generateImage));
+
+    return { images };
+  };
+
   return {
     magicPromptImageGenerate,
     magicPromptUserImageReference,
+    magicPromptUserImageReferenceForImagen,
+    generateImagenMixedWithImagen,
     generateImagen,
     generateImagenMixed,
     downloadImageGenerated,

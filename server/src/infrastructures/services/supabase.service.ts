@@ -7,8 +7,8 @@ const createSupabaseService = () => {
   const uploadImageToSupabase = async (image: string, type: 'base64' | 'url', uniqueId: string) => {
     let dataUploadSuccess = '';
     if (type === 'base64') {
-      const { data, error } = await supabase.storage.from('images').upload(`${uniqueId}.jpeg`, decode(image), {
-        contentType: 'image/jpeg',
+      const { data, error } = await supabase.storage.from('images').upload(`${uniqueId}.png`, decode(image), {
+        contentType: 'image/png',
       });
 
       if (data) {

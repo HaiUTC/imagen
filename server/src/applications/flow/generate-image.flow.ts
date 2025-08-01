@@ -43,3 +43,32 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
     return { image: [] };
   }
 };
+
+export const generateImageWithImagenFlow = async (input: GenerateImagePort) => {
+  try {
+    const { user_prompt, custom_instructions } = input;
+    const { n, images, aspect_ratio } = custom_instructions;
+
+    if (images) {
+      const imageUploadSupaBases = await Promise.all(
+        images.map(async image => {
+          const imageUploadSupaBase = await supabaseService.uploadImageToSupabase(URL.createObjectURL(image as Blob), 'url', uid());
+          return imageUploadSupaBase;
+        }),
+      );
+
+      const userMagicPrompt = await imagenService.magicPromptUserImageReferenceForImagen(user_prompt, imageUploadSupaBases);
+
+      const { images: imagesGenerated } = await imagenService.generateImagenMixedWithImagen(userMagicPrompt, aspect_ratio);
+
+      return { images: imagesGenerated, reference: imageUploadSupaBases, userMagicPrompt };
+    } else {
+      const magicPrompt = await imagenService.magicPromptImageGenerate(user_prompt, custom_instructions);
+      const images = await imagenService.generateImagen(magicPrompt, aspect_ratio, n);
+      return { images };
+    }
+  } catch (error) {
+    console.log('Fail to generate image: ', error);
+    return { image: [] };
+  }
+};
