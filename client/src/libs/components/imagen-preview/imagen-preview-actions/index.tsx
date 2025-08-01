@@ -121,14 +121,14 @@ const ImageGenPreviewDownload: React.FC = () => {
                 >
                   <span>4</span>
                 </div>
-                <div
+                {/* <div
                   className={`${styles.image_format} ${
                     downloadSettings === "all" ? styles.active : ""
                   }`}
                   onClick={() => handleChangeDownloadSettings("all")}
                 >
                   <span>All</span>
-                </div>
+                </div> */}
               </InlineStack>
             </Box>
           </InlineStack>
