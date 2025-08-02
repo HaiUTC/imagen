@@ -11,7 +11,7 @@ export const downloadImageGeneratedFlow = async (option: string, id: string) => 
       imagenService.downloadImageGenerated(id, 4),
     ]);
   } else {
-    const image = await imagenService.downloadImageGenerated(id, 1);
+    const image = await imagenService.downloadImageGenerated(id, +option);
     images.push(image);
   }
 
