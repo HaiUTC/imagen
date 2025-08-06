@@ -1,6 +1,13 @@
 import OpenAI from 'openai';
+import { LRUCache } from 'lru-cache';
 import { CustomInstructions } from '~/domains/entities/generate-image.entity';
 import { SYSTEM_PROMPT_GENERATE_IMAGE, SYSTEM_PROMPT_USER_IMAGE_REFERENCE } from '../data/prompt.data';
+
+// API key status cache using LRU cache
+const apiKeyStatusCache = new LRUCache<string, boolean>({
+  max: 10, // Maximum number of API keys
+  ttl: 1000 * 60 * 60, // 1 hour TTL
+});
 
 export const createImagenService = () => {
   const openai = new OpenAI({
@@ -8,6 +15,40 @@ export const createImagenService = () => {
     baseURL: process.env.OPENAI_BASE_URL,
     dangerouslyAllowBrowser: true,
   });
+
+  // Initialize cache with all API keys set to false
+  const initializeApiKeyCache = () => {
+    const apiKeys = [
+      process.env.VISION_API_KEY!,
+      process.env.VISION_API_KEY1!,
+      process.env.VISION_API_KEY2!,
+      process.env.VISION_API_KEY3!,
+      process.env.VISION_API_KEY4!,
+    ];
+
+    apiKeys.forEach(key => {
+      if (key && !apiKeyStatusCache.has(key)) {
+        apiKeyStatusCache.set(key, false);
+      }
+    });
+  };
+
+  // Get available API key (not currently active)
+  const getAvailableApiKey = () => {
+    const apiKeys = [
+      process.env.VISION_API_KEY!,
+      process.env.VISION_API_KEY1!,
+      process.env.VISION_API_KEY2!,
+      process.env.VISION_API_KEY3!,
+      process.env.VISION_API_KEY4!,
+    ];
+
+    // Find first available (inactive) API key
+    const availableKey = apiKeys.find(key => key && !apiKeyStatusCache.get(key));
+
+    // If all keys are active, use the first one
+    return availableKey || apiKeys[0];
+  };
 
   const magicPromptImageGenerate = async (user_prompt: string, custom_instructions: CustomInstructions) => {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -22,6 +63,7 @@ export const createImagenService = () => {
     ];
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL as string,
+      temperature: 0.6,
       messages,
     });
 
@@ -54,6 +96,7 @@ export const createImagenService = () => {
 
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL as string,
+      temperature: 0.6,
       messages,
     });
 
@@ -116,13 +159,22 @@ export const createImagenService = () => {
 
   const generateImagenMixed = async (prompt: string, aspect_ratio: string = '1:1', imageReference: string[]) => {
     try {
+      // Initialize cache if not already done
+      initializeApiKeyCache();
+
+      // Get available API key
+      const selectedApiKey = getAvailableApiKey();
+
+      // Set selected API key as active
+      apiKeyStatusCache.set(selectedApiKey, true);
+
       const imageUrls: Array<{ value: string; type: 'base64' | 'url' }> = [];
 
       const image = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/submit/imagine`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.VISION_API_KEY}`,
+          Authorization: `Bearer ${selectedApiKey}`,
         },
         body: JSON.stringify({
           prompt: `${imageReference.join(' ')} ${prompt} --aspect ${aspect_ratio}`,
@@ -141,7 +193,7 @@ export const createImagenService = () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.VISION_API_KEY}`,
+            Authorization: `Bearer ${selectedApiKey}`,
           },
         }).then(res => res.json());
 
@@ -153,21 +205,30 @@ export const createImagenService = () => {
         }
       }
 
+      // Set API key as inactive after request is complete
+      apiKeyStatusCache.set(selectedApiKey, false);
+
       return { images: imageUrls, taskId: image.result };
     } catch (error) {
+      // Ensure API key is set to inactive even if request fails
+      const selectedApiKey = getAvailableApiKey();
+      if (selectedApiKey) {
+        apiKeyStatusCache.set(selectedApiKey, false);
+      }
+
       console.error(error);
       return { images: [], taskId: '' };
     }
   };
 
-  const downloadImageGenerated = async (taskId: string, index: number) => {
+  const downloadImageGenerated = async (taskId: string, index: number, apiKey: string) => {
     let image = '';
 
     const dataUpscaleImagenMixed = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/submit/change`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.VISION_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         action: 'UPSCALE',
@@ -190,7 +251,7 @@ export const createImagenService = () => {
         },
       }).then(res => res.json());
 
-      status = statusCheck.status || 'IN_PROGRESS';
+      status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
       if (status === 'SUCCESS') {
         image = statusCheck.imageUrl;
       }
