@@ -137,7 +137,7 @@ export const createImagenService = () => {
       while (status === 'IN_PROGRESS') {
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj-turbo/mj/task/${image.result}/fetch`, {
+        const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${image.result}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -149,7 +149,7 @@ export const createImagenService = () => {
 
         status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
         if (status === 'SUCCESS') {
-          imageUrls.push({ value: statusCheck.imageUrl, type: 'url' });
+          imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
         }
       }
 
