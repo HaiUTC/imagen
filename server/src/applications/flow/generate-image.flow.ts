@@ -16,11 +16,15 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
         }),
       );
 
-      // const userMagicPrompt = await imagenService.magicPromptUserImageReference(user_prompt, imageUploadSupaBases);
+      const userMagicPrompt = await imagenService.magicPromptUserImageReference(user_prompt, imageUploadSupaBases);
 
-      const { images: imagesGenerated, taskId } = await imagenService.generateImagenMixed(user_prompt, aspect_ratio, imageUploadSupaBases);
+      const { images: imagesGenerated, taskId } = await imagenService.generateImagenMixed(
+        userMagicPrompt,
+        aspect_ratio,
+        imageUploadSupaBases,
+      );
 
-      return { images: imagesGenerated, reference: imageUploadSupaBases, taskId, magicPrompt: user_prompt };
+      return { images: imagesGenerated, reference: imageUploadSupaBases, taskId, magicPrompt: userMagicPrompt };
     } else {
       const magicPrompt = await imagenService.magicPromptImageGenerate(user_prompt, custom_instructions);
       const images = await imagenService.generateImagen(magicPrompt, aspect_ratio, n);
