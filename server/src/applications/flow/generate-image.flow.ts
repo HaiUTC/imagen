@@ -8,7 +8,7 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
     const { user_prompt, custom_instructions } = input;
     const { n, images, aspect_ratio } = custom_instructions;
 
-    if (images) {
+    if (images && images.length) {
       const imageUploadSupaBases = await Promise.all(
         images.map(async image => {
           const imageUploadSupaBase = await supabaseService.uploadImageToSupabase(URL.createObjectURL(image as Blob), 'url', uid());

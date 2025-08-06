@@ -30,6 +30,7 @@ export const ImageGenPreviewTemplate: React.FC = () => {
   const [search, setSearch] = useState<string>("");
   const { templates } = useTemplateStore();
   const [filteredTemplates, setFilteredTemplates] = useState<Template[]>([]);
+  const { generatedImages, format } = useImagenStore();
 
   useEffect(() => {
     if (search) {
@@ -172,7 +173,15 @@ export const ImageGenPreviewTemplate: React.FC = () => {
                 paddingBlockEnd="200"
                 paddingBlockStart="400"
               >
-                <button className={styles.submit} onClick={() => {}}>
+                <button
+                  className={styles.submit}
+                  onClick={() => {
+                    addImagenToTemplateFlow({
+                      imagenId: generatedImages[format].id,
+                      id: selectedTemplate,
+                    });
+                  }}
+                >
                   {false ? <Spinner size="small" /> : <span>Save</span>}
                 </button>
               </Box>

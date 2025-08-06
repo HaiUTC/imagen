@@ -64,14 +64,14 @@ export const createImagenService = () => {
     try {
       // Create an array of n requests to be executed in parallel
       const requests = Array.from({ length: n }, () =>
-        fetch('https://api.yescale.io/v1/images/generations', {
+        fetch(`${process.env.OPENAI_BASE_URL}/images/generations`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${process.env.VISION_API_KEY}`,
           },
           body: JSON.stringify({
-            model: 'imagen4',
+            model: 'imagen4-fast',
             prompt,
             response_format: 'url',
             aspect_ratio: aspect_ratio,
@@ -84,7 +84,6 @@ export const createImagenService = () => {
 
       // Process all responses and collect image data
       const images: Array<{ value: string; type: 'base64' | 'url' }> = [];
-
       responses.forEach((data, index) => {
         try {
           if (data.data) {
@@ -119,7 +118,7 @@ export const createImagenService = () => {
     try {
       const imageUrls: Array<{ value: string; type: 'base64' | 'url' }> = [];
 
-      const image = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj-turbo/mj/submit/imagine`, {
+      const image = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/submit/imagine`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -145,6 +144,8 @@ export const createImagenService = () => {
             Authorization: `Bearer ${process.env.VISION_API_KEY}`,
           },
         }).then(res => res.json());
+
+        console.log('statusCheck: ', statusCheck);
 
         status = statusCheck.status || 'IN_PROGRESS';
         if (status === 'SUCCESS') {
