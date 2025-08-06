@@ -58,10 +58,8 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   isDownloaded: false,
   generatedImages: {
     generate: {
-      images: [
-        "https://mbosethldhseoyvfihje.supabase.co/storage/v1/object/public/images/screenshot_mdzflsh32308.jpeg",
-      ],
-      id: "6892d171ec355800e682c5ad",
+      images: [],
+      id: "",
       taskId: "",
     },
   },
