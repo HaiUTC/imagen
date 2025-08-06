@@ -1,5 +1,5 @@
-import { imagenService } from "../infrastructure/services/imagen.service";
-import { useImagenStore } from "../store/imagen.store";
+import { imagenService } from "../../infrastructure/services/imagen.service";
+import { useImagenStore } from "../../store/imagen.store";
 
 export const imagenSubmitFlow = async () => {
   const {
@@ -25,21 +25,15 @@ export const imagenSubmitFlow = async () => {
           formData.append("images", image);
         });
       }
-      const { images, taskId } = await imagenService.generateImage(formData);
+      const { images, taskId, id } = await imagenService.generateImage(
+        formData
+      );
       setTaskIdGenerated(taskId);
-      setGeneratedImages("generate", images);
-    } else if (format === "generate_v2") {
-      formData.append("prompt", data.generate_v2.prompt);
-      formData.append("n", data.generate_v2.n.toString());
-      formData.append("aspect_ratio", data.generate_v2.aspect_ratio);
-      formData.append("style", data.generate_v2.style);
-      if (data.generate_v2.image) {
-        data.generate_v2.image.forEach((image) => {
-          formData.append("images", image);
-        });
-      }
-      const { images } = await imagenService.generateImageWithImagen(formData);
-      setGeneratedImages("generate_v2", images);
+      setGeneratedImages("generate", {
+        images,
+        id,
+        taskId,
+      });
     }
   } catch (error) {
     console.error("Error in imagenSubmitFlow:", error);

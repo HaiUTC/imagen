@@ -11,7 +11,7 @@ import { SettingsGenerate } from "./settings/settings-generate";
 import { useImagenStore } from "../../../../store/imagen.store";
 
 export const GenerateImageEditor: React.FC = () => {
-  const { data, format, onChangeDataValue, setGeneratedImages } =
+  const { data, format, errors, onChangeDataValue, setGeneratedImages } =
     useImagenStore();
 
   const handleDropZoneDrop = (
@@ -20,7 +20,11 @@ export const GenerateImageEditor: React.FC = () => {
     _rejectedFiles: File[]
   ) => {
     onChangeDataValue(format, "image", acceptedFiles);
-    setGeneratedImages(format, []);
+    setGeneratedImages(format, {
+      images: [],
+      id: "",
+      taskId: "",
+    });
   };
 
   const validImageTypes = [
@@ -82,6 +86,7 @@ export const GenerateImageEditor: React.FC = () => {
           name="prompt"
           autoComplete="off"
           value={data[format].prompt}
+          error={errors.prompt}
           placeholder="Please describe your creative ideas for the image"
           onChange={(value) => onChangeDataValue(format, "prompt", value)}
         />

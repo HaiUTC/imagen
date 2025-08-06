@@ -41,9 +41,7 @@ export const PromptOnly: React.FC<PromptOnlyProps> = ({ onChangeTab }) => {
     {
       label: "Choose",
       status: "primary",
-      onAction: () => {
-        console.log("Choose");
-      },
+      onAction: () => {},
     },
     {
       label: "Improve",

@@ -48,9 +48,7 @@ export const PromptImageReference: React.FC<PromptImageReferenceProps> = ({
     {
       label: "Choose",
       status: "primary",
-      onAction: () => {
-        console.log("Choose");
-      },
+      onAction: () => {},
     },
     {
       label: "Improve",

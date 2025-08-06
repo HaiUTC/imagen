@@ -1,22 +1,14 @@
 import { create } from "zustand";
-
-// type Format =
-//   | "generate"
-//   | "upscale"
-//   | "remove-background"
-//   | "resize"
-//   | "shadow"
-//   | "fashion"
-//   | "video";
-
 interface ImagenValue {
   generate: GenerateValue;
-  generate_v2: GenerateValue;
 }
 
 interface GeneratedImagesValue {
-  generate: string[];
-  generate_v2: string[];
+  generate: {
+    images: string[];
+    id: string;
+    taskId: string;
+  };
 }
 
 interface GenerateValue {
@@ -33,11 +25,15 @@ export interface ImagenStore {
   taskIdGenerated: string;
   loadingDownload: boolean;
   data: ImagenValue;
+  errors: Record<string, string>;
+  isDownloaded: boolean;
   generatedImages: GeneratedImagesValue;
   setFormat: (format: keyof ImagenValue) => void;
   setLoadingGenerate: (loadingGenerate: boolean) => void;
   setTaskIdGenerated: (taskIdGenerated: string) => void;
   setLoadingDownload: (loadingDownload: boolean) => void;
+  setErrors: (errors: Record<string, string>) => void;
+  setIsDownloaded: (isDownloaded: boolean) => void;
   onChangeDataValue: (
     format: keyof ImagenValue,
     key: string,
@@ -45,7 +41,11 @@ export interface ImagenStore {
   ) => void;
   setGeneratedImages: (
     format: keyof GeneratedImagesValue,
-    generatedImages: string[]
+    generatedImages: {
+      images: string[];
+      id: string;
+      taskId: string;
+    }
   ) => void;
 }
 
@@ -54,19 +54,19 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   loadingGenerate: false,
   taskIdGenerated: "",
   loadingDownload: false,
+  errors: {},
+  isDownloaded: false,
   generatedImages: {
-    generate: [],
-    generate_v2: [],
+    generate: {
+      images: [
+        "https://mbosethldhseoyvfihje.supabase.co/storage/v1/object/public/images/screenshot_mdzflsh32308.jpeg",
+      ],
+      id: "6892d171ec355800e682c5ad",
+      taskId: "",
+    },
   },
   data: {
     generate: {
-      prompt: "",
-      n: 1,
-      aspect_ratio: "3:4",
-      style: "realistic",
-      image: [],
-    },
-    generate_v2: {
       prompt: "",
       n: 1,
       aspect_ratio: "3:4",
@@ -86,6 +86,12 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   setLoadingDownload: (loadingDownload: boolean) => {
     set({ loadingDownload });
   },
+  setErrors: (errors: Record<string, string>) => {
+    set({ errors });
+  },
+  setIsDownloaded: (isDownloaded: boolean) => {
+    set({ isDownloaded });
+  },
   onChangeDataValue: (
     format: keyof ImagenValue,
     key: string,
@@ -100,7 +106,11 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   },
   setGeneratedImages: (
     format: keyof GeneratedImagesValue,
-    generatedImages: string[]
+    generatedImages: {
+      images: string[];
+      id: string;
+      taskId: string;
+    }
   ) => {
     set((state) => ({
       generatedImages: { ...state.generatedImages, [format]: generatedImages },

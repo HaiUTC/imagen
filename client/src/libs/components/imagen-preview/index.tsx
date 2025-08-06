@@ -17,8 +17,8 @@ export const ImageGenPreviewContainer: React.FC = () => {
       <Box position="relative">
         <ImageGenPreview
           images={
-            generatedImages[format].length
-              ? generatedImages[format]
+            generatedImages[format].images.length
+              ? generatedImages[format].images
               : data[format].image?.map(window.URL.createObjectURL)
           }
           loading={loadingGenerate}
