@@ -6,5 +6,5 @@ export const addImagenToTemplateFlow = async (data: {
   name?: string;
   description?: string;
 }) => {
-  const template = await templateService.addImagenToTemplate(data);
+  await templateService.addImagenToTemplate(data);
 };
