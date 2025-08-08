@@ -52,7 +52,6 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/asjUhkUoQDu_R402K_2qGw" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/8j9aWFwETQidD7-4kvOiJw" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/NxiKSMPsTEyp7mUdC_TrEw" />
-          <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/kMEGdk4PTY2OrJxYT2-hIw" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/u1_1ab5ASve0JA6I6F-Awg" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/PpAKyzzNTqW4t4rgD2Rw8w" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/zZ2hF1GER1Gil4go0fxXgw" />
