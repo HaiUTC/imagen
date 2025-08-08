@@ -14,6 +14,7 @@ export const ImageGenPreview: React.FC<ImageGenPreviewProps> = ({
 }) => {
   const [selectedImage, setSelectedImage] = useState<string>(images?.[0] || "");
 
+  console.log("images", images);
   useEffect(() => {
     setSelectedImage(images?.[0] || "");
   }, [images]);
