@@ -1,5 +1,7 @@
-import { Controller, Get, Route, Tags, Path, Response, Post, Body, Delete } from 'tsoa';
+import { Controller, Get, Route, Tags, Path, Response, Post, Body, Delete, Query } from 'tsoa';
 import { TemplateService } from '~/controllers/template.controller';
+import { PaginationEntity } from '~/domains/entities/pagination.entity';
+import { TemplateValueFully } from '~/domains/entities/template.entity';
 
 @Route('/templates')
 @Tags('Templates')
@@ -19,6 +21,25 @@ export class TemplateController extends Controller {
       console.error('Get all templates error:', error);
       this.setStatus(500);
       throw new Error('Failed to retrieve templates');
+    }
+  }
+
+  /**
+   * Get template by ID
+   * @summary Retrieve list imagens paginated based on template id
+   */
+  @Get('/imagens')
+  @Response(200, 'Successfully retrieved imagens')
+  @Response(404, 'Template not found')
+  @Response(500, 'Internal server error')
+  public async getImagensPaginated(@Query() before?: string, @Query() template?: string): Promise<PaginationEntity<TemplateValueFully>> {
+    try {
+      const imagens = await TemplateService.getImagensPaginated(template, before);
+      return imagens;
+    } catch (error) {
+      console.error('Get imagens error:', error);
+      this.setStatus(500);
+      throw new Error('Failed to retrieve imagens');
     }
   }
 

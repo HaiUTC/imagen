@@ -40,15 +40,12 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/tUBu1Nv5SmiLSYDDt5AV9w" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/dyinZZPOTDK3nWnfkspWbg" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/e2UNr7ZURF2VpXk13NVAAw" />
-
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/yLOrMZvSSxKaIffGEtOmKQ" />
-
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/aAIcIT4VRjiFl6L9C6D8Sw" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/u1_1ab5ASve0JA6I6F-Awg" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/VxKcdEIHSh25E_ZhZyDNFQ" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/r1DJeoWYRJCYzyHvGeu-kQ" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/NxiKSMPsTEyp7mUdC_TrEw" />
-
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/asjUhkUoQDu_R402K_2qGw" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/8j9aWFwETQidD7-4kvOiJw" />
           <ImagenLibraryPreview src="https://ideogram.ai/assets/progressive-image/balanced/response/NxiKSMPsTEyp7mUdC_TrEw" />

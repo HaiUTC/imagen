@@ -16,6 +16,6 @@ export const editImageFlow = async (prompt: string, images: File[]) => {
     return { images: imagesGenerated, reference: imageUploadSupaBases, taskId };
   } catch (error) {
     console.log('Fail to edit image: ', error);
-    return { image: [] };
+    return { image: [], taskId: '' };
   }
 };

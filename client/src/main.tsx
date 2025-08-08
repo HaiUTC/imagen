@@ -5,6 +5,7 @@ import Home from "./containers/home";
 import Imagen from "./containers/imagen";
 import Layout from "./containers/layout";
 import ImagEdit from "./containers/imagedit";
+import CollectionsContainer from "./containers/collections";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/imagen" element={<Imagen />} />
         <Route path="/imagedit" element={<ImagEdit />} />
+        <Route path="/collections" element={<CollectionsContainer />} />
       </Route>
     </Routes>
   );

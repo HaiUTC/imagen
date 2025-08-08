@@ -1,22 +1,7 @@
 import { model, Schema, SchemaDefinition } from 'mongoose';
+import { ImagenValue } from '~/domains/entities/imagen.entity';
 
-export interface ImagenDataValue {
-  format: string;
-  data: {
-    model?: string;
-    prompt?: string;
-    aspectRatio?: string;
-    style?: string;
-    reference?: string[];
-    n?: number;
-    image?: string;
-    magic_prompt?: string;
-  };
-  taskId?: string;
-  imagens: string[];
-}
-
-export interface ImagenDbModel extends SchemaDefinition<ImagenDataValue> {}
+export interface ImagenDbModel extends SchemaDefinition<ImagenValue> {}
 
 const ImagenSchema = new Schema<ImagenDbModel>(
   {

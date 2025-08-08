@@ -1,18 +1,13 @@
 import { model, Schema, SchemaDefinition, Types } from 'mongoose';
+import { TemplateValueFully } from '~/domains/entities/template.entity';
 
-export interface TemplateDataValue {
-  name: string;
-  description: string;
-  imagen: Types.ObjectId[];
-}
-
-export interface TemplateDbModel extends SchemaDefinition<TemplateDataValue> {}
+export interface TemplateDbModel extends SchemaDefinition<TemplateValueFully> {}
 
 const TemplateSchema = new Schema<TemplateDbModel>(
   {
     name: { type: String, required: true },
     description: { type: String, required: true },
-    imagen: { type: [Schema.Types.ObjectId], ref: 'imagen', required: true },
+    imagens: { type: [Schema.Types.ObjectId], ref: 'imagen', required: true },
   },
   { timestamps: true },
 );

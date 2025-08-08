@@ -20,21 +20,21 @@ const generateImage = async (input: GenerateImagePort) => {
     );
   }
 
-  const { _id } = await imagenRepository.create({
+  const imagen = await imagenRepository.create({
     format: 'generate',
     data: {
       prompt: input.user_prompt,
       aspectRatio: input.custom_instructions.aspect_ratio,
       n: input.custom_instructions.n,
       style: input.custom_instructions.style,
-      reference: reference || undefined,
-      magic_prompt: magicPrompt || undefined,
+      reference: reference || [],
+      magic_prompt: magicPrompt || '',
     },
-    taskId,
+    taskId: taskId || '',
     imagens: imagePublicUrls,
   });
 
-  return { images: imagePublicUrls, taskId, id: _id };
+  return { images: imagePublicUrls, taskId, id: imagen._id as string };
 };
 
 const editImage = async (prompt: string, images: File[]) => {
@@ -52,17 +52,17 @@ const editImage = async (prompt: string, images: File[]) => {
     );
   }
 
-  const { _id } = await imagenRepository.create({
+  const imagen = await imagenRepository.create({
     format: 'edit',
     data: {
       prompt: prompt,
-      reference: reference || undefined,
+      reference: reference || [],
     },
     taskId,
     imagens: imagePublicUrls,
   });
 
-  return { images: imagePublicUrls, taskId, id: _id };
+  return { images: imagePublicUrls, taskId, id: imagen._id as string };
 };
 
 const downloadImageGenerated = async ({ option, id }: { option: string; id: string }) => {

@@ -1,8 +1,8 @@
-import { ImagenDataValue } from '../models/imagen.model';
+import { ImagenValue } from '~/domains/entities/imagen.entity';
 import ImagenModel from '../models/imagen.model';
 
 const createImagenRepository = () => ({
-  create: async (data: ImagenDataValue) => {
+  create: async (data: ImagenValue) => {
     const imagen = await ImagenModel.create(data);
     return imagen;
   },

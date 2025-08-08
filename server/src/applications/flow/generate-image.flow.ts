@@ -32,6 +32,6 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
     }
   } catch (error) {
     console.log('Fail to generate image: ', error);
-    return { image: [] };
+    return { image: [], taskId: '', magicPrompt: '' };
   }
 };

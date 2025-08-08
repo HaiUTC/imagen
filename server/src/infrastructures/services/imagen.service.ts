@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { LRUCache } from 'lru-cache';
-import { CustomInstructions } from '~/domains/entities/generate-image.entity';
+import { CustomInstructions } from '~/domains/entities/imagen.entity';
 import { SYSTEM_PROMPT_GENERATE_IMAGE, SYSTEM_PROMPT_USER_IMAGE_REFERENCE } from '../data/prompt.data';
 
 // API key status cache using LRU cache
@@ -211,7 +211,7 @@ export const createImagenService = () => {
       // Set API key as inactive after request is complete
       apiKeyStatusCache.set(selectedApiKey, false);
 
-      return { images: imageUrls, taskId: image.result };
+      return { images: imageUrls, taskId: image.result as string };
     } catch (error) {
       // Ensure API key is set to inactive even if request fails
       const selectedApiKey = getAvailableApiKey();
@@ -269,15 +269,7 @@ export const createImagenService = () => {
       // Set API key as inactive after request is complete
       apiKeyStatusCache.set(selectedApiKey, false);
 
-      return { images: imageUrls, taskId: image.result };
-
-      // const task = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${image.task_id}`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `Bearer ${selectedApiKey}`,
-      //   },
-      // }).then(async res => await res.json());
+      return { images: imageUrls, taskId: image.result as string };
     } catch (error) {
       const selectedApiKey = getAvailableApiKey();
       if (selectedApiKey) {

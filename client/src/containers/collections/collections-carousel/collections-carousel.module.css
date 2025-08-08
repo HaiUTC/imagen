@@ -1,0 +1,68 @@
+/* client/src/containers/collections/collections-carousel/collections-carousel.module.css */
+.carousel_container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #e1e5eb;
+  z-index: 100;
+  padding: 10px 20px;
+  max-height: 200px;
+}
+
+.carousel_content {
+  display: flex;
+  gap: 12px;
+  scroll-behavior: smooth;
+  padding-bottom: 8px;
+  cursor: grab;
+}
+
+.carousel_content:active {
+  cursor: grabbing;
+}
+
+.carousel_content::-webkit-scrollbar {
+  height: 4px;
+}
+
+.carousel_content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.carousel_content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.carousel_content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.carousel_item {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+  border-radius: 4px;
+  background: #fff;
+  opacity: 0.7;
+  transition: transform 300ms ease-out, opacity 300ms ease-out;
+  transform-origin: center center 0px;
+  background-color: rgb(38, 39, 43);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.carousel_item:hover {
+  opacity: 1;
+}
+
+.carousel_item.selected {
+  opacity: 1;
+  transform: scale(1.2);
+}

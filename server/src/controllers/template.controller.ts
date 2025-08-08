@@ -1,5 +1,8 @@
 import { Types } from 'mongoose';
 import { templateRepository } from '~/frame-works/database/repositories/template.repository';
+import { ImagenValue } from '~/domains/entities/imagen.entity';
+import { PaginationEntity } from '~/domains/entities/pagination.entity';
+import { TemplateValueFully } from '~/domains/entities/template.entity';
 
 const getAllTemplates = async () => {
   try {
@@ -24,23 +27,33 @@ const getTemplateById = async (id: string) => {
   }
 };
 
+const getImagensPaginated = async (id?: string, beforeId?: string): Promise<PaginationEntity<TemplateValueFully>> => {
+  try {
+    const imagens = await templateRepository.getImagensPaginated(id, beforeId);
+    return imagens;
+  } catch (error) {
+    console.error('Error fetching imagens:', error);
+    throw new Error('Failed to fetch imagens');
+  }
+};
+
 const addImagenToTemplate = async (data: { imagenId: string; id?: string; name?: string; description?: string }) => {
   try {
     if (data.name) {
       await templateRepository.create({
         name: data.name,
         description: data.description || '',
-        imagen: [new Types.ObjectId(data.imagenId)],
+        imagens: [new Types.ObjectId(data.imagenId)],
       });
       return { status: 'Saved' };
     } else if (data.id) {
       // check if the template already has the imagen
       const template = await templateRepository.findByIdNoPopulate(data.id);
-      if (template?.imagen?.includes(new Types.ObjectId(data.imagenId))) {
+      if (template?.imagens?.includes(new Types.ObjectId(data.imagenId))) {
         return { status: 'Imagen already exists in template' };
       }
       await templateRepository.update(data.id, {
-        imagen: [...template.imagen, new Types.ObjectId(data.imagenId)],
+        imagens: [...template.imagens, new Types.ObjectId(data.imagenId)],
       });
       return { status: 'Saved' };
     } else {
@@ -85,6 +98,7 @@ const deleteTemplate = async (id: string) => {
 export const TemplateService = {
   getAllTemplates,
   getTemplateById,
+  getImagensPaginated,
   addImagenToTemplate,
   deleteImagenFromTemplate,
   updateTemplate,

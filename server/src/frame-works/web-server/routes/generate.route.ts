@@ -2,9 +2,8 @@ import { Controller, Post, Request, Route, Tags, FormField, UploadedFiles } from
 import { Request as RequestExpress } from 'express';
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { GenerateImageService } from '~/controllers/generate-image.controller';
-import { CustomInstructions } from '~/domains/entities/generate-image.entity';
+import { CustomInstructions } from '~/domains/entities/imagen.entity';
 import { convertToSupportedFormat, isValidImageFormat } from '~/applications/utils/image-converter.util';
-import { Types } from 'mongoose';
 
 @Route('/generative')
 @Tags('Generative')
@@ -19,7 +18,7 @@ export class GenerativeController extends Controller {
     @FormField() aspect_ratio: string,
     @FormField() style: string,
     @UploadedFiles() images?: Express.Multer.File[],
-  ): Promise<{ images: string[]; taskId: string | null; id: Types.ObjectId | null }> {
+  ): Promise<{ images: string[]; taskId?: string; id: string }> {
     try {
       // Parse the custom_instructions JSON string
       let parsedCustomInstructions: CustomInstructions = {
@@ -59,7 +58,7 @@ export class GenerativeController extends Controller {
       return result;
     } catch (error) {
       console.log('Generate image with upload error ====> ', error);
-      return { images: [], taskId: null, id: null };
+      return { images: [], taskId: '', id: '' };
     }
   }
 
@@ -75,7 +74,7 @@ export class GenerativeController extends Controller {
   public async editImage(
     @FormField() prompt: string,
     @UploadedFiles() images: Express.Multer.File[],
-  ): Promise<{ images: string[]; taskId: string | null; id: Types.ObjectId | null }> {
+  ): Promise<{ images: string[]; taskId?: string; id: string }> {
     try {
       const imagesToEdit: File[] = [];
       if (images && images.length) {
@@ -100,7 +99,7 @@ export class GenerativeController extends Controller {
       return result;
     } catch (error) {
       console.log('Edit image error ====> ', error);
-      return { images: [], taskId: null, id: null };
+      return { images: [], taskId: undefined, id: '' };
     }
   }
 }
