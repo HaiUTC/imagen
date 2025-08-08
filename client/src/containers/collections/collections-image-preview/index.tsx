@@ -20,15 +20,15 @@ interface CollectionsImagePreviewProps {
 export const CollectionsImagePreview: React.FC<
   CollectionsImagePreviewProps
 > = ({ data, onBackClick }) => {
-  const [selectedImage, setSelectedImage] = useState<string>(
+  const [selectedImage] = useState<string>(
     data.imagens[0] || data.referenceImage[0] || ""
   );
 
-  const handleImageClick = (imageUrl: string) => {
-    setSelectedImage(imageUrl);
-  };
+  // const handleImageClick = (imageUrl: string) => {
+  //   setSelectedImage(imageUrl);
+  // };
 
-  const allImages = [...data.imagens, ...data.referenceImage];
+  // const allImages = [...data.imagens, ...data.referenceImage];
 
   return (
     <div className={styles.image_preview_container}>
