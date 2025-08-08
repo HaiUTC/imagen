@@ -13,17 +13,23 @@ export interface Template {
 interface TemplateStore {
   templates: Template[];
   loading: boolean;
+  status: string;
   setTemplates: (templates: Template[]) => void;
   setLoading: (loading: boolean) => void;
+  setStatus: (status: string) => void;
 }
 
 export const useTemplateStore = create<TemplateStore>((set) => ({
   templates: [],
   loading: false,
+  status: "",
   setTemplates: (templates: Template[]) => {
     set({ templates });
   },
   setLoading: (loading: boolean) => {
     set({ loading });
+  },
+  setStatus: (status: string) => {
+    set({ status });
   },
 }));

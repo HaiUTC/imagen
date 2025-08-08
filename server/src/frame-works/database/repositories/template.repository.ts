@@ -38,6 +38,10 @@ const createTemplateRepository = () => ({
     const template = await TemplateModel.findById(id).populate('imagen');
     return template;
   },
+  findByIdNoPopulate: async (id: string) => {
+    const template = (await TemplateModel.findById(id)) as TemplateDataValue;
+    return template;
+  },
   update: async (id: string, data: Partial<TemplateDataValue>) => {
     const template = await TemplateModel.findByIdAndUpdate(id, data, { new: true }).populate('imagen');
     return template;

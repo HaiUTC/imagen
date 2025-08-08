@@ -27,15 +27,22 @@ const getTemplateById = async (id: string) => {
 const addImagenToTemplate = async (data: { imagenId: string; id?: string; name?: string; description?: string }) => {
   try {
     if (data.name) {
-      const template = await templateRepository.create({
+      await templateRepository.create({
         name: data.name,
         description: data.description || '',
         imagen: [new Types.ObjectId(data.imagenId)],
       });
-      return template;
+      return { status: 'Saved' };
     } else if (data.id) {
-      const template = await templateRepository.addImagenToTemplate(data.id, data.imagenId);
-      return template;
+      // check if the template already has the imagen
+      const template = await templateRepository.findByIdNoPopulate(data.id);
+      if (template?.imagen?.includes(new Types.ObjectId(data.imagenId))) {
+        return { status: 'Imagen already exists in template' };
+      }
+      await templateRepository.update(data.id, {
+        imagen: [...template.imagen, new Types.ObjectId(data.imagenId)],
+      });
+      return { status: 'Saved' };
     } else {
       throw new Error('Invalid request');
     }

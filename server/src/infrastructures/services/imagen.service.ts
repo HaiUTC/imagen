@@ -50,6 +50,7 @@ export const createImagenService = () => {
     return availableKey || apiKeys[0];
   };
 
+  // Tạo magic prompt cho việc generate ảnh từ prompt mà không có image reference
   const magicPromptImageGenerate = async (user_prompt: string, custom_instructions: CustomInstructions) => {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       {
@@ -63,13 +64,13 @@ export const createImagenService = () => {
     ];
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL as string,
-      temperature: 0.6,
       messages,
     });
 
     return response.choices[0].message.content || '';
   };
 
+  // Tạo magic prompt cho việc generate ảnh từ prompt và image reference
   const magicPromptUserImageReference = async (user_prompt: string, imageReference: string[]) => {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       {
@@ -96,13 +97,14 @@ export const createImagenService = () => {
 
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL as string,
-      temperature: 0.6,
+
       messages,
     });
 
     return response.choices[0].message.content || '';
   };
 
+  // Generate ảnh từ prompt
   const generateImagen = async (prompt: string, aspect_ratio: string = '1:1', n: number = 1) => {
     try {
       // Create an array of n requests to be executed in parallel
@@ -157,6 +159,7 @@ export const createImagenService = () => {
     }
   };
 
+  // Generate ảnh từ prompt và image reference
   const generateImagenMixed = async (prompt: string, aspect_ratio: string = '1:1', imageReference: string[]) => {
     try {
       // Initialize cache if not already done
@@ -177,7 +180,7 @@ export const createImagenService = () => {
           Authorization: `Bearer ${selectedApiKey}`,
         },
         body: JSON.stringify({
-          prompt: `${imageReference.join(' ')} ${prompt} --aspect ${aspect_ratio}`,
+          prompt: `${imageReference.join(' ')} ${prompt} --aspect ${aspect_ratio} --iw 2`,
           botType: 'MID_JOURNEY',
         }),
       }).then(async res => await res.json());
@@ -221,6 +224,72 @@ export const createImagenService = () => {
     }
   };
 
+  // Edit ảnh từ prompt và image reference
+  const editImage = async (prompt: string, imageTarget: string) => {
+    try {
+      const selectedApiKey = getAvailableApiKey();
+
+      const image = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/fal-ai/bytedance/seededit/v3/edit-image`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${selectedApiKey}`,
+        },
+        body: JSON.stringify({
+          image_url: imageTarget,
+          prompt: prompt,
+        }),
+      }).then(async res => await res.json());
+
+      let status = 'IN_PROGRESS';
+
+      const imageUrls: Array<{ value: string; type: 'base64' | 'url' }> = [];
+
+      await new Promise(resolve => setTimeout(resolve, 20000));
+
+      while (status === 'IN_PROGRESS') {
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${image.result}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${selectedApiKey}`,
+          },
+        }).then(res => res.json());
+
+        console.log('statusCheck: ', statusCheck);
+
+        status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
+        if (status === 'SUCCESS') {
+          imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
+        }
+      }
+
+      // Set API key as inactive after request is complete
+      apiKeyStatusCache.set(selectedApiKey, false);
+
+      return { images: imageUrls, taskId: image.result };
+
+      // const task = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${image.task_id}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `Bearer ${selectedApiKey}`,
+      //   },
+      // }).then(async res => await res.json());
+    } catch (error) {
+      const selectedApiKey = getAvailableApiKey();
+      if (selectedApiKey) {
+        apiKeyStatusCache.set(selectedApiKey, false);
+      }
+
+      console.error(error);
+      return { images: [], taskId: '' };
+    }
+  };
+
+  // Download ảnh từ taskId
   const downloadImageGenerated = async (taskId: string, index: number, apiKey: string) => {
     let image = '';
 
@@ -264,6 +333,7 @@ export const createImagenService = () => {
     magicPromptImageGenerate,
     magicPromptUserImageReference,
     generateImagen,
+    editImage,
     generateImagenMixed,
     downloadImageGenerated,
   };

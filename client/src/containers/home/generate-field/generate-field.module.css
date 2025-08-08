@@ -1,0 +1,112 @@
+.as567 {
+  height: 1px;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+  background: #fff;
+  overflow: hidden;
+  transition: 0.3s;
+}
+
+.generate_actions {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.upload {
+  display: inline-flex;
+  -moz-box-align: center;
+  align-items: center;
+  -moz-box-pack: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  outline: 0px;
+  border: 0px;
+  margin: 0px;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+  text-align: center;
+  flex: 0 0 auto;
+  overflow: visible;
+  transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: rgb(212, 212, 216);
+  fill: rgb(84, 84, 94);
+  font-family: Manrope;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.56px;
+  min-width: 0px;
+  background-color: rgba(255, 255, 255, 0);
+  width: 36px;
+  padding: 0px;
+  height: 36px;
+  border-radius: 6px;
+}
+
+.upload:hover {
+  color: rgb(0, 0, 0);
+  fill: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.generate {
+  position: relative;
+  box-sizing: border-box;
+  outline: 0px;
+  border: 0px;
+  margin: 0px;
+  cursor: pointer;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+  text-transform: none;
+  user-select: none;
+  font-family: Manrope, sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  display: flex;
+  height: 36px;
+  -moz-box-pack: center;
+  justify-content: center;
+  -moz-box-align: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  box-shadow: rgba(9, 9, 11, 0.05) 0px 1px 2px 0px;
+  text-align: center;
+  transition: none;
+  background-color: rgb(44, 44, 46);
+  color: rgb(254, 254, 254);
+  width: 90px;
+  min-width: 90px;
+  padding: 6px 12px;
+}
+
+.generate span {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+.image {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 3px;
+  margin-right: 10px;
+  cursor: pointer;
+}

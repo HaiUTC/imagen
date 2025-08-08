@@ -1,4 +1,5 @@
 import { downloadImageGeneratedFlow } from '~/applications/flow/download-image.flow';
+import { editImageFlow } from '~/applications/flow/edit-image.flow';
 import { generateImageFlow } from '~/applications/flow/generate-image.flow';
 import { uid } from '~/applications/utils/uid';
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
@@ -36,6 +37,34 @@ const generateImage = async (input: GenerateImagePort) => {
   return { images: imagePublicUrls, taskId, id: _id };
 };
 
+const editImage = async (prompt: string, images: File[]) => {
+  const { images: imagesEdited, reference, taskId } = await editImageFlow(prompt, images);
+
+  const imagePublicUrls: string[] = [];
+
+  if (Array.isArray(imagesEdited)) {
+    await Promise.all(
+      imagesEdited.map(async item => {
+        const uniqueId = uid();
+        const imagePublicUrl = await supabaseService.uploadImageToSupabase(item.value, 'url', uniqueId);
+        imagePublicUrls.push(imagePublicUrl);
+      }),
+    );
+  }
+
+  const { _id } = await imagenRepository.create({
+    format: 'edit',
+    data: {
+      prompt: prompt,
+      reference: reference || undefined,
+    },
+    taskId,
+    imagens: imagePublicUrls,
+  });
+
+  return { images: imagePublicUrls, taskId, id: _id };
+};
+
 const downloadImageGenerated = async ({ option, id }: { option: string; id: string }) => {
   const imagePublicUrls: string[] = [];
 
@@ -58,5 +87,6 @@ const downloadImageGenerated = async ({ option, id }: { option: string; id: stri
 
 export const GenerateImageService = {
   generateImage,
+  editImage,
   downloadImageGenerated,
 };

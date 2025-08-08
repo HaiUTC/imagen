@@ -4,6 +4,7 @@ import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { GenerateImageService } from '~/controllers/generate-image.controller';
 import { CustomInstructions } from '~/domains/entities/generate-image.entity';
 import { convertToSupportedFormat, isValidImageFormat } from '~/applications/utils/image-converter.util';
+import { Types } from 'mongoose';
 
 @Route('/generative')
 @Tags('Generative')
@@ -13,13 +14,12 @@ export class GenerativeController extends Controller {
    */
   @Post('/image')
   public async generativeImageWithUpload(
-    @Request() req: RequestExpress,
     @FormField() prompt: string,
     @FormField() n: string,
     @FormField() aspect_ratio: string,
     @FormField() style: string,
     @UploadedFiles() images?: Express.Multer.File[],
-  ): Promise<{ images: string[] }> {
+  ): Promise<{ images: string[]; taskId: string | null; id: Types.ObjectId | null }> {
     try {
       // Parse the custom_instructions JSON string
       let parsedCustomInstructions: CustomInstructions = {
@@ -59,7 +59,7 @@ export class GenerativeController extends Controller {
       return result;
     } catch (error) {
       console.log('Generate image with upload error ====> ', error);
-      return { images: [] };
+      return { images: [], taskId: null, id: null };
     }
   }
 
@@ -69,5 +69,38 @@ export class GenerativeController extends Controller {
       option: req.body.option,
       id: req.body.id,
     });
+  }
+
+  @Post('/edit')
+  public async editImage(
+    @FormField() prompt: string,
+    @UploadedFiles() images: Express.Multer.File[],
+  ): Promise<{ images: string[]; taskId: string | null; id: Types.ObjectId | null }> {
+    try {
+      const imagesToEdit: File[] = [];
+      if (images && images.length) {
+        for (let i = 0; i < images.length; i++) {
+          const image = images[i];
+          // Validate that it's a valid image format
+          if (!isValidImageFormat(image)) {
+            throw new Error(`Unsupported reference image format: ${image.mimetype}. Please upload a valid image file.`);
+          }
+
+          // Convert to supported format if needed
+          const processedReferenceImage = await convertToSupportedFormat(image);
+
+          // Convert processed image to File-like object
+          const fileBlob = new Blob([processedReferenceImage.buffer], { type: processedReferenceImage.mimetype });
+          const file = new File([fileBlob], processedReferenceImage.originalname, { type: processedReferenceImage.mimetype });
+          imagesToEdit.push(file);
+        }
+      }
+
+      const result = await GenerateImageService.editImage(prompt, imagesToEdit);
+      return result;
+    } catch (error) {
+      console.log('Edit image error ====> ', error);
+      return { images: [], taskId: null, id: null };
+    }
   }
 }

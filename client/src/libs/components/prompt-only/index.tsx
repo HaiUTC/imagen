@@ -1,6 +1,6 @@
 import { TextField, Box, Divider, InlineError } from "@shopify/polaris";
 import { urlToFile } from "../../utils/url-2-file";
-import { SettingsGenerate } from "../imagen-editor/generate/settings/settings-generate";
+import { SettingsGenerate } from "../../../containers/layout/editor/settings/settings-generate";
 import { SkeletonImageGenerated } from "../skeleton";
 import styles from "./prompt-only.module.css";
 import { useGenerateImageStore } from "../../../store/generate-image.store";

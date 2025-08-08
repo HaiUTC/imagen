@@ -1,10 +1,16 @@
 import { create } from "zustand";
-interface ImagenValue {
+export interface ImagenValue {
   generate: GenerateValue;
+  edit: EditValue;
 }
 
 interface GeneratedImagesValue {
   generate: {
+    images: string[];
+    id: string;
+    taskId: string;
+  };
+  edit: {
     images: string[];
     id: string;
     taskId: string;
@@ -19,8 +25,13 @@ interface GenerateValue {
   image?: File[];
 }
 
+interface EditValue {
+  prompt: string;
+  image?: File[];
+}
+
 export interface ImagenStore {
-  format: keyof ImagenValue;
+  format: keyof ImagenValue | null;
   loadingGenerate: boolean;
   taskIdGenerated: string;
   loadingDownload: boolean;
@@ -28,7 +39,7 @@ export interface ImagenStore {
   errors: Record<string, string>;
   isDownloaded: boolean;
   generatedImages: GeneratedImagesValue;
-  setFormat: (format: keyof ImagenValue) => void;
+  setFormat: (format: keyof ImagenValue | null) => void;
   setLoadingGenerate: (loadingGenerate: boolean) => void;
   setTaskIdGenerated: (taskIdGenerated: string) => void;
   setLoadingDownload: (loadingDownload: boolean) => void;
@@ -47,10 +58,12 @@ export interface ImagenStore {
       taskId: string;
     }
   ) => void;
+
+  clearData: () => void;
 }
 
 export const useImagenStore = create<ImagenStore>((set) => ({
-  format: "generate",
+  format: null,
   loadingGenerate: false,
   taskIdGenerated: "",
   loadingDownload: false,
@@ -58,6 +71,11 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   isDownloaded: false,
   generatedImages: {
     generate: {
+      images: [],
+      id: "",
+      taskId: "",
+    },
+    edit: {
       images: [],
       id: "",
       taskId: "",
@@ -71,8 +89,12 @@ export const useImagenStore = create<ImagenStore>((set) => ({
       style: "realistic",
       image: [],
     },
+    edit: {
+      prompt: "",
+      image: [],
+    },
   },
-  setFormat: (format: keyof ImagenValue) => {
+  setFormat: (format: keyof ImagenValue | null) => {
     set({ format });
   },
   setLoadingGenerate: (loadingGenerate: boolean) => {
@@ -113,5 +135,39 @@ export const useImagenStore = create<ImagenStore>((set) => ({
     set((state) => ({
       generatedImages: { ...state.generatedImages, [format]: generatedImages },
     }));
+  },
+  clearData: () => {
+    set({
+      data: {
+        generate: {
+          prompt: "",
+          n: 1,
+          aspect_ratio: "3:4",
+          style: "realistic",
+          image: [],
+        },
+        edit: {
+          prompt: "",
+          image: [],
+        },
+      },
+      loadingGenerate: false,
+      taskIdGenerated: "",
+      loadingDownload: false,
+      errors: {},
+      isDownloaded: false,
+      generatedImages: {
+        generate: {
+          images: [],
+          id: "",
+          taskId: "",
+        },
+        edit: {
+          images: [],
+          id: "",
+          taskId: "",
+        },
+      },
+    });
   },
 }));

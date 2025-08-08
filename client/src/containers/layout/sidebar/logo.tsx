@@ -1,0 +1,17 @@
+import styles from "./option/option.module.css";
+
+interface ImagenSideBarLogoProps {
+  onClick: () => void;
+}
+
+export const ImagenSideBarLogo: React.FC<ImagenSideBarLogoProps> = ({
+  onClick,
+}) => {
+  return (
+    <div className={styles.logo_container}>
+      <div className={styles.logo} onClick={onClick}>
+        <img width={35} height={35} src="/public/favicon.png" alt="Logo" />
+      </div>
+    </div>
+  );
+};

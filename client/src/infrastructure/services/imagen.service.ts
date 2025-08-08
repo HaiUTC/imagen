@@ -1,12 +1,4 @@
-interface ImagenServicePort {
-  generateImage: (
-    data: FormData
-  ) => Promise<{ images: string[]; taskId: string; id: string }>;
-  downloadImageGenerated: (data: {
-    option: string;
-    id: string;
-  }) => Promise<{ images: string[] }>;
-}
+import type { ImagenServicePort } from "../../domain/ports/imagen-service.port";
 
 const createImagenService = (): ImagenServicePort => {
   return {
@@ -19,6 +11,16 @@ const createImagenService = (): ImagenServicePort => {
         }
       );
 
+      return response.json();
+    },
+    editImage: async (data: FormData) => {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BE_CDN}/generative/edit`,
+        {
+          method: "POST",
+          body: data,
+        }
+      );
       return response.json();
     },
     downloadImageGenerated: async (data: { option: string; id: string }) => {
