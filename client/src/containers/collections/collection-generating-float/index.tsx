@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useImagenStore } from "../../../store/imagen.store";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import styles from "./collection-generating-float.module.css";
+import { useNavigate } from "react-router-dom";
 
 interface CollectionGeneratingFloatProps {}
 
@@ -9,8 +10,15 @@ export const CollectionGeneratingFloat: React.FC<
   CollectionGeneratingFloatProps
 > = () => {
   const { loadingGenerate, format, generatedImages } = useImagenStore();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [displayImages, setDisplayImages] = useState<string[]>([]);
+  const navigate = useNavigate();
+
+  const handleImageClick = (id: string) => {
+    if (id) {
+      navigate(`/i/${id}`);
+    }
+  };
 
   useEffect(() => {
     if (loadingGenerate) {
@@ -59,6 +67,7 @@ export const CollectionGeneratingFloat: React.FC<
             <img
               src={hasImage}
               alt={`Generated image ${i + 1}`}
+              onClick={() => handleImageClick(generatedImages[format].id)}
               className={styles.generated_image}
             />
           ) : null}
@@ -80,10 +89,10 @@ export const CollectionGeneratingFloat: React.FC<
             {svgIcon(format === "generate" ? ICONS.GENERATE : ICONS.EDIT)}
           </div>
           <span className={styles.heading_text}>
-            {loadingGenerate 
-              ? "Waiting in the slow queue..." 
-              : displayImages.length > 0 
-              ? "Generation complete!" 
+            {loadingGenerate
+              ? "Waiting in the slow queue..."
+              : displayImages.length > 0
+              ? "Generation complete!"
               : "Ready to generate"}
           </span>
         </div>
