@@ -31,7 +31,7 @@ interface EditValue {
 }
 
 export interface ImagenStore {
-  format: keyof ImagenValue | null;
+  format: keyof ImagenValue;
   loadingGenerate: boolean;
   taskIdGenerated: string;
   loadingDownload: boolean;
@@ -39,7 +39,7 @@ export interface ImagenStore {
   errors: Record<string, string>;
   isDownloaded: boolean;
   generatedImages: GeneratedImagesValue;
-  setFormat: (format: keyof ImagenValue | null) => void;
+  setFormat: (format: keyof ImagenValue) => void;
   setLoadingGenerate: (loadingGenerate: boolean) => void;
   setTaskIdGenerated: (taskIdGenerated: string) => void;
   setLoadingDownload: (loadingDownload: boolean) => void;
@@ -63,7 +63,7 @@ export interface ImagenStore {
 }
 
 export const useImagenStore = create<ImagenStore>((set) => ({
-  format: null,
+  format: "generate",
   loadingGenerate: false,
   taskIdGenerated: "",
   loadingDownload: false,
@@ -94,7 +94,7 @@ export const useImagenStore = create<ImagenStore>((set) => ({
       image: [],
     },
   },
-  setFormat: (format: keyof ImagenValue | null) => {
+  setFormat: (format: keyof ImagenValue) => {
     set({ format });
   },
   setLoadingGenerate: (loadingGenerate: boolean) => {

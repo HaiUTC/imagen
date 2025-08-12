@@ -1,4 +1,10 @@
-import { useState } from "react";
+import {
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+  useEffect,
+  useState,
+} from "react";
 import styles from "./collections-carousel.module.css";
 
 interface CollectionsData {
@@ -11,51 +17,111 @@ interface CollectionsData {
   imagens: string[];
 }
 
+export interface CarouselRef {
+  scrollNext: () => void;
+  scrollPrev: () => void;
+  scrollToIndex: (index: number) => void;
+}
+
 interface CollectionsCarouselProps {
   collections: CollectionsData[];
   onCollectionSelect: (collection: CollectionsData) => void;
   selectedCollectionId?: string;
 }
 
-export const CollectionsCarousel: React.FC<CollectionsCarouselProps> = ({
-  collections,
-  onCollectionSelect,
-  selectedCollectionId,
-}) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
+export const CollectionsCarousel = forwardRef<
+  CarouselRef,
+  CollectionsCarouselProps
+>(({ collections, onCollectionSelect, selectedCollectionId }, ref) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setStartX(e.pageX - (e.currentTarget as HTMLElement).offsetLeft);
-    setScrollLeft(e.currentTarget.scrollLeft);
+  // Removed checkScrollPosition since no navigation arrows needed
+
+  // Navigate to next item
+  const scrollNext = () => {
+    if (currentIndex < collections.length - 1) {
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+      onCollectionSelect(collections[nextIndex]);
+      scrollToIndex(nextIndex);
+    }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - (e.currentTarget as HTMLElement).offsetLeft;
-    const walk = (x - startX) * 2;
-    e.currentTarget.scrollLeft = scrollLeft - walk;
+  // Navigate to previous item
+  const scrollPrev = () => {
+    if (currentIndex > 0) {
+      const prevIndex = currentIndex - 1;
+      setCurrentIndex(prevIndex);
+      onCollectionSelect(collections[prevIndex]);
+      scrollToIndex(prevIndex);
+    }
   };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
+  // Update current index when selectedCollectionId changes
+  useEffect(() => {
+    const index = collections.findIndex(
+      (c) => c.taskId === selectedCollectionId
+    );
+    if (index !== -1 && index !== currentIndex) {
+      setCurrentIndex(index);
+      scrollToIndex(index);
+    }
+  }, [selectedCollectionId, collections, currentIndex]);
+
+  const scrollToIndex = (index: number) => {
+    if (!scrollContainerRef.current) return;
+    const container = scrollContainerRef.current;
+    const containerWidth = container.clientWidth;
+    const itemWidth = 64 + 12; // item width + gap
+    const itemsVisible = Math.floor(containerWidth / itemWidth);
+
+    // Calculate scroll position to keep the selected item visible
+    const scrollLeft = Math.max(
+      0,
+      Math.min(
+        itemWidth * index - (containerWidth - itemWidth) / 2,
+        itemWidth * (collections.length - itemsVisible)
+      )
+    );
+
+    container.scrollTo({
+      left: scrollLeft,
+      behavior: "smooth",
+    });
   };
+
+  // Expose scroll methods via ref
+  useImperativeHandle(ref, () => ({
+    scrollNext,
+    scrollPrev,
+    scrollToIndex,
+  }));
+
+  // Initialize current index
+  useEffect(() => {
+    if (collections.length > 0) {
+      const index = collections.findIndex(
+        (c) => c.taskId === selectedCollectionId
+      );
+      setCurrentIndex(index !== -1 ? index : 0);
+    }
+  }, [collections, selectedCollectionId]);
 
   const handleCollectionClick = (collection: CollectionsData) => {
-    onCollectionSelect(collection);
+    const index = collections.findIndex((c) => c.taskId === collection.taskId);
+    if (index !== -1) {
+      setCurrentIndex(index);
+      onCollectionSelect(collection);
+      scrollToIndex(index);
+    }
   };
 
   return (
     <div className={styles.carousel_container}>
       <div
+        ref={scrollContainerRef}
         className={styles.carousel_content}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
       >
         {collections.map((collection) => (
           <div
@@ -75,4 +141,4 @@ export const CollectionsCarousel: React.FC<CollectionsCarouselProps> = ({
       </div>
     </div>
   );
-};
+});

@@ -16,7 +16,7 @@ export default function ImagEdit() {
       setIsDownloaded(false);
     }
 
-    let error: Record<string, string> = {};
+    const error: Record<string, string> = {};
 
     if (!data[format || "edit"].prompt) {
       error.prompt = "Prompt is required";

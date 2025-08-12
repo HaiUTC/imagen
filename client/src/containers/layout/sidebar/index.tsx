@@ -19,7 +19,7 @@ export const ImagenSideBar: React.FC = () => {
       <BlockStack align="center" inlineAlign="center">
         <ImagenSideBarLogo
           onClick={() => {
-            setFormat(null);
+            setFormat("generate");
             navigate("/");
           }}
         />

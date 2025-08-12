@@ -1,23 +1,52 @@
 import { Box, InlineStack, Text } from "@shopify/polaris";
 import styles from "./library.module.css";
 import { Fragment, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ImagenLibraryPreviewProps {
   src: string;
+  imagenId?: string;
+  templateId?: string | null;
+  onImageLoad?: (
+    imageUrl: string,
+    naturalHeight: number,
+    naturalWidth: number
+  ) => void;
 }
 
 export const ImagenLibraryPreview: React.FC<ImagenLibraryPreviewProps> = ({
   src,
+  imagenId,
+  templateId,
+  onImageLoad,
 }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = event.currentTarget;
+    if (onImageLoad) {
+      onImageLoad(src, img.naturalHeight, img.naturalWidth);
+    }
+  };
+
+  const handleClick = () => {
+    if (imagenId) {
+      const url = templateId
+        ? `/i/${imagenId}?templateId=${templateId}`
+        : `/i/${imagenId}`;
+      navigate(url);
+    }
+  };
 
   return (
     <div
       className={styles.preview}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
+      onClick={handleClick}
     >
-      <img src={src} alt="imagen-library-preview" />
+      <img src={src} alt="imagen-library-preview" onLoad={handleImageLoad} />
       {isHover && (
         <Fragment>
           <Box

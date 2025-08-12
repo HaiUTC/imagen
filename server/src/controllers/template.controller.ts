@@ -1,6 +1,5 @@
 import { Types } from 'mongoose';
 import { templateRepository } from '~/frame-works/database/repositories/template.repository';
-import { ImagenValue } from '~/domains/entities/imagen.entity';
 import { PaginationEntity } from '~/domains/entities/pagination.entity';
 import { TemplateValueFully } from '~/domains/entities/template.entity';
 

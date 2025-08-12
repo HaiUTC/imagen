@@ -8,7 +8,7 @@ export const SettingsGenerate: React.FC = () => {
         <Box width="200px">
           <InlineStack>
             {/* <Box paddingInline="150">
-              <NumberOutput />
+              <FormatOutput />
             </Box> */}
             {/* <Box
               borderInlineStartWidth="025"

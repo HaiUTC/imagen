@@ -1,8 +1,72 @@
 import { Types } from 'mongoose';
 import TemplateModel from '../models/template.model';
 import { TemplateDataValue, TemplateValueFully } from '~/domains/entities/template.entity';
-import { ImagenValue } from '~/domains/entities/imagen.entity';
 import { PaginationEntity } from '~/domains/entities/pagination.entity';
+
+// Helper functions for pagination
+const buildMatchConditions = async (templateId?: string, beforeId?: string) => {
+  const conditions: any = {};
+
+  if (templateId) {
+    const template = (await TemplateModel.findById(templateId)) as TemplateDataValue;
+    if (!template) {
+      return null;
+    }
+    conditions._id = { $in: template.imagens };
+  }
+
+  let beforeImagen: any = null;
+  if (beforeId) {
+    beforeImagen = await TemplateModel.db.collection('imagens').findOne({ _id: new Types.ObjectId(beforeId) });
+    if (beforeImagen) {
+      conditions.updatedAt = { $lt: beforeImagen.updatedAt };
+    }
+  }
+
+  return { conditions, beforeImagen };
+};
+
+const fetchImagenesWithPagination = async (conditions: any, limit: number): Promise<TemplateValueFully[]> => {
+  return (await TemplateModel.db
+    .collection('imagens')
+    .find(conditions)
+    .sort({ updatedAt: -1 })
+    .limit(limit + 1)
+    .toArray()) as unknown as TemplateValueFully[];
+};
+
+const processImagenResults = (imagenes: TemplateValueFully[], limit: number) => {
+  const hasNext = imagenes.length > limit;
+  const data = hasNext ? imagenes.slice(0, limit) : imagenes;
+  return { data, hasNext };
+};
+
+const checkHasPrevious = async (
+  templateId?: string,
+  beforeId?: string,
+  beforeImagen?: any,
+  conditions?: any,
+  resultImagenes?: TemplateValueFully[],
+): Promise<boolean> => {
+  if (beforeId && beforeImagen) {
+    const previousCount = await TemplateModel.db.collection('imagens').countDocuments({
+      ...conditions,
+      updatedAt: { $gt: beforeImagen.updatedAt },
+    });
+    return previousCount > 0;
+  }
+
+  if (templateId && resultImagenes && resultImagenes.length > 0) {
+    const firstImagenUpdatedAt = resultImagenes[0].updatedAt;
+    const newerCount = await TemplateModel.db.collection('imagens').countDocuments({
+      ...conditions,
+      updatedAt: { $gt: firstImagenUpdatedAt },
+    });
+    return newerCount > 0;
+  }
+
+  return false;
+};
 
 const createTemplateRepository = () => ({
   create: async (data: TemplateDataValue) => {
@@ -12,24 +76,10 @@ const createTemplateRepository = () => ({
   findAll: async () => {
     const templates = await TemplateModel.aggregate([
       {
-        $lookup: {
-          from: 'imagens',
-          let: { imagenIds: '$imagen' },
-          pipeline: [{ $match: { $expr: { $in: ['$_id', '$$imagenIds'] } } }, { $project: { _id: 1, imagens: 1 } }, { $limit: 1 }],
-          as: 'imagen',
-        },
-      },
-      {
-        $addFields: {
-          imagen: { $arrayElemAt: ['$imagen', 0] },
-        },
-      },
-      {
         $project: {
           _id: 1,
           name: 1,
           description: 1,
-          imagen: 1,
         },
       },
     ]);
@@ -65,68 +115,29 @@ const createTemplateRepository = () => ({
     return template;
   },
   getImagensPaginated: async (templateId?: string, beforeId?: string): Promise<PaginationEntity<TemplateValueFully>> => {
-    const limit = 30;
+    const LIMIT = 20;
+    const EMPTY_RESULT = { data: [], count: 0, beforeId: null, hasNext: false, hasPrevious: false };
 
-    // Build match conditions
-    const matchConditions: any = {};
-
-    if (templateId) {
-      const template = (await TemplateModel.findById(templateId)) as TemplateDataValue;
-      if (!template) {
-        return { data: [], beforeId: null, hasNext: false, hasPrevious: false };
-      }
-      matchConditions._id = { $in: template.imagens };
+    const matchConditions = await buildMatchConditions(templateId, beforeId);
+    if (!matchConditions) {
+      return EMPTY_RESULT;
     }
 
-    if (beforeId) {
-      const beforeImagen = await TemplateModel.db.collection('imagens').findOne({ _id: new Types.ObjectId(beforeId) });
-      if (beforeImagen) {
-        matchConditions.updatedAt = { $lt: beforeImagen.updatedAt };
-      }
+    const { conditions, beforeImagen } = matchConditions;
+
+    const imagenes = await fetchImagenesWithPagination(conditions, LIMIT);
+    const { data: resultImagenes, hasNext } = processImagenResults(imagenes, LIMIT);
+
+    if (resultImagenes.length === 0) {
+      return EMPTY_RESULT;
     }
 
-    // Get imagenes with pagination
-    const imagenes = (await TemplateModel.db
-      .collection('imagens')
-      .find(matchConditions)
-      .sort({ updatedAt: -1 })
-      .limit(limit + 1) // Get one extra to check if there are more
-      .toArray()) as unknown as TemplateValueFully[];
-
-    const hasNext = imagenes.length > limit;
-    const resultImagenes = hasNext ? imagenes.slice(0, limit) : imagenes;
-
-    // Check if there are previous pages
-    let hasPrevious = false;
-    if (beforeId) {
-      const beforeImagen = await TemplateModel.db.collection('imagens').findOne({ _id: new Types.ObjectId(beforeId) });
-      if (beforeImagen) {
-        const previousCount = await TemplateModel.db.collection('imagens').countDocuments({
-          ...matchConditions,
-          updatedAt: { $gt: beforeImagen.updatedAt },
-        });
-        hasPrevious = previousCount > 0;
-      }
-    } else if (templateId) {
-      // If no beforeId but templateId exists, check if there are newer imagenes
-      const template = (await TemplateModel.findById(templateId)) as TemplateDataValue;
-      if (template && template.imagens && template.imagens.length > 0) {
-        const newestImagen = await TemplateModel.db
-          .collection('imagens')
-          .find({ _id: { $in: template.imagens } })
-          .sort({ updatedAt: -1 })
-          .limit(1)
-          .toArray();
-
-        if (newestImagen.length > 0 && resultImagenes.length > 0) {
-          hasPrevious = newestImagen[0].updatedAt > resultImagenes[0].updatedAt;
-        }
-      }
-    }
+    const hasPrevious = await checkHasPrevious(templateId, beforeId, beforeImagen, conditions, resultImagenes);
 
     return {
       data: resultImagenes,
-      beforeId: resultImagenes.length > 0 ? resultImagenes[resultImagenes.length - 1]._id.toString() : null,
+      beforeId: resultImagenes[resultImagenes.length - 1]._id?.toString() || null,
+      count: resultImagenes.length,
       hasNext,
       hasPrevious,
     };

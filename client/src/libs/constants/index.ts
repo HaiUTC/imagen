@@ -46,6 +46,17 @@ export const DEFAULT_NUMBER_RESULT = [
   },
 ];
 
+export const DEFAULT_FORMAT = [
+  {
+    id: "generate",
+    name: "Generate",
+  },
+  {
+    id: "edit",
+    name: "edit",
+  },
+];
+
 export const DEFAULT_ASPECT_RATIO = [
   {
     id: "1:1",

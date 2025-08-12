@@ -17,6 +17,8 @@ export const ICONS = {
   ARROW_LEFT: "arrow-left",
   COPY: "copy",
   ADD: "add",
+  NARROW_DOWN: "narrow-down",
+  TICK: "tick",
 };
 
 export const svgIcon = (icon: string) => {
@@ -78,7 +80,20 @@ export const svgIcon = (icon: string) => {
       </svg>
     );
   }
-
+  if (icon === ICONS.TICK) {
+    return (
+      <svg
+        width="18"
+        height="18"
+        focusable="false"
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        data-testid="CheckRoundedIcon"
+      >
+        <path d="M9 16.17 5.53 12.7a.9959.9959 0 0 0-1.41 0c-.39.39-.39 1.02 0 1.41l4.18 4.18c.39.39 1.02.39 1.41 0L20.29 7.71c.39-.39.39-1.02 0-1.41a.9959.9959 0 0 0-1.41 0z"></path>
+      </svg>
+    );
+  }
   if (icon === ICONS.RESIZE) {
     return (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -392,6 +407,25 @@ export const svgIcon = (icon: string) => {
           <path
             fill="inherit"
             d="M10.77 2.75c.349 0 .636.259.682.594l.006.093.002 6.646h6.648a.687.687 0 01.093 1.37l-.093.005H11.46l.002 6.645a.688.688 0 01-1.368.094l-.007-.093-.002-6.646H3.44a.687.687 0 01-.094-1.368l.094-.007h6.645l-.002-6.645c0-.38.308-.688.688-.688z"
+          ></path>
+        </g>
+      </svg>
+    );
+  }
+
+  if (icon === ICONS.NARROW_DOWN) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        fill="inherit"
+        viewBox="0 0 20 20"
+      >
+        <g>
+          <path
+            fill="inherit"
+            d="M4.147 12.354a.5.5 0 01-.001-.707L9.61 6.163a.55.55 0 01.779 0l5.465 5.484a.5.5 0 01-.708.706L10 7.188l-5.146 5.165a.5.5 0 01-.707.001z"
           ></path>
         </g>
       </svg>

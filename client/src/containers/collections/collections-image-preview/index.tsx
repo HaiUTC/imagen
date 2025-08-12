@@ -1,6 +1,6 @@
-import { useState } from "react";
-import styles from "./collections-image-preview.module.css";
+import { useRef } from "react";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
+import styles from "./collections-image-preview.module.css";
 
 interface CollectionsData {
   format: "generate" | "edit";
@@ -14,21 +14,14 @@ interface CollectionsData {
 
 interface CollectionsImagePreviewProps {
   data: CollectionsData;
+  imagePreview: string;
   onBackClick: () => void;
 }
 
 export const CollectionsImagePreview: React.FC<
   CollectionsImagePreviewProps
-> = ({ data, onBackClick }) => {
-  const [selectedImage] = useState<string>(
-    data.imagens[0] || data.referenceImage[0] || ""
-  );
-
-  // const handleImageClick = (imageUrl: string) => {
-  //   setSelectedImage(imageUrl);
-  // };
-
-  // const allImages = [...data.imagens, ...data.referenceImage];
+> = ({ onBackClick, imagePreview }) => {
+  const imageContainerRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className={styles.image_preview_container}>
@@ -38,10 +31,10 @@ export const CollectionsImagePreview: React.FC<
       </button>
 
       {/* Main image display */}
-      <div className={styles.main_image_container}>
-        {selectedImage ? (
+      <div ref={imageContainerRef} className={styles.main_image_container}>
+        {imagePreview ? (
           <img
-            src={selectedImage}
+            src={imagePreview}
             alt="Selected image"
             className={styles.main_image}
           />

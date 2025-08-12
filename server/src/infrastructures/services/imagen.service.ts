@@ -200,8 +200,6 @@ export const createImagenService = () => {
           },
         }).then(res => res.json());
 
-        console.log('statusCheck: ', statusCheck);
-
         status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
         if (status === 'SUCCESS') {
           imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
@@ -257,8 +255,6 @@ export const createImagenService = () => {
             Authorization: `Bearer ${selectedApiKey}`,
           },
         }).then(res => res.json());
-
-        console.log('statusCheck: ', statusCheck);
 
         status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
         if (status === 'SUCCESS') {

@@ -27,7 +27,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/imagen" element={<Imagen />} />
         <Route path="/imagedit" element={<ImagEdit />} />
-        <Route path="/collections" element={<CollectionsContainer />} />
+        <Route path="/i/:id" element={<CollectionsContainer />} />
       </Route>
     </Routes>
   );

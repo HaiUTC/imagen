@@ -1,6 +1,7 @@
 import {
   BlockStack,
   Box,
+  Button,
   DropZone,
   InlineStack,
   LegacyStack,
@@ -19,12 +20,25 @@ export const GenerateImageEditor: React.FC = () => {
     acceptedFiles: File[],
     _rejectedFiles: File[]
   ) => {
-    onChangeDataValue("generate", "image", acceptedFiles);
+    const validFile = acceptedFiles.filter(
+      (file) => !data.generate.image?.find((image) => image.name === file.name)
+    );
+    onChangeDataValue("generate", "image", [
+      ...(data.generate.image || []),
+      ...validFile,
+    ]);
     setGeneratedImages("generate", {
       images: [],
       id: "",
       taskId: "",
     });
+  };
+
+  const handleRemoveImage = (image: File) => {
+    onChangeDataValue("generate", "image", [
+      ...(data.generate.image?.filter((file) => file.name !== image.name) ||
+        []),
+    ]);
   };
 
   const validImageTypes = [
@@ -34,7 +48,10 @@ export const GenerateImageEditor: React.FC = () => {
     "image/avif",
   ];
 
-  const fileUpload = <DropZone.FileUpload />;
+  const fileUpload = (
+    <DropZone.FileUpload actionHint="Accepts .webp, .jpeg, .png and .avif" />
+  );
+
   const uploadedFiles = data.generate.image?.length !== 0 && (
     <Box paddingBlockStart="200">
       <InlineStack gap="200">
@@ -51,10 +68,14 @@ export const GenerateImageEditor: React.FC = () => {
               }}
             />
             <div>
-              {image.name}{" "}
-              <Text variant="bodySm" as="p">
-                {image.size} bytes
-              </Text>
+              <Text as="p"> {image.name}</Text>
+              <Button
+                variant="plain"
+                tone="critical"
+                onClick={() => handleRemoveImage(image)}
+              >
+                Remove
+              </Button>
             </div>
           </LegacyStack>
         ))}
