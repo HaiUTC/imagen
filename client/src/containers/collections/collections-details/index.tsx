@@ -7,12 +7,13 @@ import {
   Tooltip,
   Button,
 } from "@shopify/polaris";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import styles from "./collections-details.module.css";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import { useImagenStore, type ImagenValue } from "../../../store/imagen.store";
 import { urlToFile } from "../../../libs/utils/url-2-file";
 import { NatureIcon } from "@shopify/polaris-icons";
+import { upscaleAllImagesFlow } from "../../../flow/imagen/imagen.dowload.flow";
 
 interface CollectionsData {
   format: "generate" | "edit";
@@ -39,7 +40,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<number>(0);
-  const { onChangeDataValue, setFormat } = useImagenStore();
+  const { loadingDownload, onChangeDataValue, setFormat } = useImagenStore();
 
   const handleCopyText = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -225,7 +226,12 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
               </Text>
 
               {data.imagens.length < 5 && (
-                <Button variant="tertiary" icon={NatureIcon}>
+                <Button
+                  variant="tertiary"
+                  icon={NatureIcon}
+                  loading={loadingDownload}
+                  onClick={() => upscaleAllImagesFlow(data.taskId)}
+                >
                   Upscale
                 </Button>
               )}
