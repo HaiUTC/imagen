@@ -3,6 +3,8 @@ import { useImagenStore } from "../../../store/imagen.store";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import styles from "./collection-generating-float.module.css";
 import { useNavigate } from "react-router-dom";
+import { Icon } from "@shopify/polaris";
+import { XIcon } from "@shopify/polaris-icons";
 
 interface CollectionGeneratingFloatProps {}
 
@@ -12,12 +14,18 @@ export const CollectionGeneratingFloat: React.FC<
   const { loadingGenerate, format, generatedImages } = useImagenStore();
   const [isExpanded, setIsExpanded] = useState(false);
   const [displayImages, setDisplayImages] = useState<string[]>([]);
+  const [isVisible, setIsVisible] = useState(true);
   const navigate = useNavigate();
 
   const handleImageClick = (id: string) => {
     if (id) {
       navigate(`/i/${id}`);
     }
+  };
+
+  const handleClose = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsVisible(false);
   };
 
   useEffect(() => {
@@ -35,6 +43,10 @@ export const CollectionGeneratingFloat: React.FC<
   }, [loadingGenerate, displayImages]);
 
   if (!loadingGenerate && displayImages.length === 0) {
+    return null;
+  }
+
+  if (!isVisible) {
     return null;
   }
 
@@ -96,12 +108,21 @@ export const CollectionGeneratingFloat: React.FC<
               : "Ready to generate"}
           </span>
         </div>
-        <div
-          className={`${styles.expand_icon} ${
-            isExpanded ? styles.expanded : ""
-          }`}
-        >
-          {svgIcon(ICONS.NARROW_DOWN)}
+        <div className={styles.header_actions}>
+          <div
+            className={`${styles.expand_icon} ${
+              isExpanded ? styles.expanded : ""
+            }`}
+          >
+            {svgIcon(ICONS.NARROW_DOWN)}
+          </div>
+          <button
+            className={styles.close_button}
+            onClick={handleClose}
+            aria-label="Close"
+          >
+            <Icon source={XIcon} />
+          </button>
         </div>
       </div>
 
