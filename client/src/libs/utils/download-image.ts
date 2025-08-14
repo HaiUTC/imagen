@@ -26,6 +26,8 @@ export const downloadImagesFromArray = async (
   imageUrls: string[]
 ): Promise<void> => {
   for (let i = 0; i < imageUrls.length; i++) {
-    await downloadImage(imageUrls[i]);
+    if (imageUrls[i]) {
+      await downloadImage(imageUrls[i]);
+    }
   }
 };

@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <HomeContainer>
       <ImagenSideBar />
-      <Box minHeight="100vh" overflowY="scroll">
+      <Box background="bg-surface" overflowY="scroll" id="scroll-container">
         <GenerateField isSticky={isSticky} observer setIsSticky={setIsSticky} />
         <Library isSticky={isSticky} />
       </Box>

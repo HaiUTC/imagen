@@ -1,5 +1,6 @@
 import { Box, InlineStack } from "@shopify/polaris";
 import { useEffect, useCallback, useRef, useState } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import styles from "./library.module.css";
 import { ImagenLibraryPreview } from "./preview";
@@ -24,35 +25,69 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
     setCurrentTemplateId,
     paginationLoading,
   } = useTemplateStore();
-  const observerRef = useRef<IntersectionObserver | null>(null);
   const [imageHeights, setImageHeights] = useState<Record<string, number>>({});
   const masonryRef = useRef<HTMLDivElement>(null);
 
-  const calculateGridRowSpan = useCallback((imageHeight: number, imageWidth: number) => {
-    if (!masonryRef.current) return 20;
-    
-    // Get the actual column width from the computed styles
-    const computedStyle = window.getComputedStyle(masonryRef.current);
-    const gap = parseInt(computedStyle.gap) || 12;
-    const gridAutoRows = parseInt(computedStyle.gridAutoRows) || 10;
-    
-    // Calculate the aspect ratio and determine the height needed
-    const aspectRatio = imageHeight / imageWidth;
-    const columnWidth = 250; // Base width from minmax
-    const neededHeight = columnWidth * aspectRatio;
-    
-    // Calculate how many grid rows this image needs
-    const rowSpan = Math.ceil((neededHeight + gap) / (gridAutoRows + gap));
-    return Math.max(rowSpan, 1);
-  }, []);
+  const calculateGridRowSpan = useCallback(
+    (imageHeight: number, imageWidth: number) => {
+      if (!masonryRef.current) return 20;
 
-  const handleImageLoad = useCallback((imageUrl: string, naturalHeight: number, naturalWidth: number) => {
-    const rowSpan = calculateGridRowSpan(naturalHeight, naturalWidth);
-    setImageHeights(prev => ({
-      ...prev,
-      [imageUrl]: rowSpan
-    }));
-  }, [calculateGridRowSpan]);
+      // Get the actual computed styles
+      const computedStyle = window.getComputedStyle(masonryRef.current);
+      const gap = parseInt(computedStyle.gap) || 10;
+      const gridAutoRows = parseInt(computedStyle.gridAutoRows) || 10;
+
+      // Get the actual column width by measuring the grid
+      const containerWidth = masonryRef.current.offsetWidth;
+      const paddingLeft = parseInt(computedStyle.paddingLeft) || 10;
+      const paddingRight = parseInt(computedStyle.paddingRight) || 10;
+      const availableWidth = containerWidth - paddingLeft - paddingRight;
+
+      // Calculate number of columns based on current grid setup
+      const gridColumns = computedStyle.gridTemplateColumns;
+      let columnCount = 5; // default
+
+      if (gridColumns.includes("repeat(")) {
+        const match = gridColumns.match(
+          /repeat\((\d+),|repeat\(auto-fill,.*minmax\((\d+)px/
+        );
+        if (match) {
+          if (match[1]) {
+            columnCount = parseInt(match[1]);
+          } else if (match[2]) {
+            const minColumnWidth = parseInt(match[2]);
+            columnCount = Math.floor(
+              (availableWidth + gap) / (minColumnWidth + gap)
+            );
+          }
+        }
+      }
+
+      // Calculate actual column width
+      const columnWidth =
+        (availableWidth - gap * (columnCount - 1)) / columnCount;
+
+      // Calculate the aspect ratio and determine the height needed
+      const aspectRatio = imageHeight / imageWidth;
+      const neededHeight = columnWidth * aspectRatio;
+
+      // Calculate how many grid rows this image needs
+      const rowSpan = Math.ceil(neededHeight / (gridAutoRows * 2));
+      return Math.max(rowSpan, 1);
+    },
+    []
+  );
+
+  const handleImageLoad = useCallback(
+    (imageUrl: string, naturalHeight: number, naturalWidth: number) => {
+      const rowSpan = calculateGridRowSpan(naturalHeight, naturalWidth);
+      setImageHeights((prev) => ({
+        ...prev,
+        [imageUrl]: rowSpan,
+      }));
+    },
+    [calculateGridRowSpan]
+  );
 
   const allGeneratedImages = [
     ...generatedImages.generate.images,
@@ -60,26 +95,10 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
   ];
 
   // Keep the generated images separate for fallback
-
   const loadMore = useCallback(async () => {
     if (paginationLoading || !paginatedImages.hasNext) return;
     await loadMoreImagesFlow();
   }, [paginationLoading, paginatedImages.hasNext]);
-
-  // Intersection Observer for infinite scroll
-  const lastImageElementRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (paginationLoading) return;
-      if (observerRef.current) observerRef.current.disconnect();
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && paginatedImages.hasNext) {
-          loadMore();
-        }
-      });
-      if (node) observerRef.current.observe(node);
-    },
-    [paginationLoading, paginatedImages.hasNext, loadMore]
-  );
 
   useEffect(() => {
     getTemplatesFlow();
@@ -139,77 +158,88 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
       </div>
 
       <Box>
-        <div ref={masonryRef} className={styles.masonry}>
-          {paginatedImages.data.length > 0 ? (
-            paginatedImages.data
-              .filter((imagen) => imagen.imagens && imagen.imagens.length > 0)
-              .map((imagen, index) => {
-                const isLast = index === paginatedImages.data.length - 1;
-                const imageUrl = imagen.imagens[imagen.imagens.length - 1]; // Get last image
-                const gridRowSpan = imageHeights[imageUrl] || 20; // Default span
-                
-                return (
-                  <div
-                    key={`template-${imagen._id}-${index}`}
-                    className={styles.masonryItem}
-                    style={{
-                      gridRowEnd: `span ${gridRowSpan}`
-                    }}
-                    ref={
-                      isLast && paginatedImages.hasNext
-                        ? lastImageElementRef
-                        : null
-                    }
-                  >
-                    <ImagenLibraryPreview 
-                      src={imageUrl} 
-                      imagenId={imagen._id}
-                      templateId={currentTemplateId}
-                      onImageLoad={handleImageLoad}
-                    />
-                  </div>
-                );
-              })
-          ) : allGeneratedImages.length > 0 ? (
-            allGeneratedImages.map((imageUrl, index) => {
+        {paginatedImages.data.length > 0 ? (
+          <InfiniteScroll
+            dataLength={paginatedImages.data.length}
+            next={loadMore}
+            hasMore={paginatedImages.hasNext}
+            loader={
+              <div className={styles.loadingIndicator}>
+                <p>Loading more images...</p>
+              </div>
+            }
+            endMessage={
+              <div className={styles.endMessage}>
+                <p>You've seen all images!</p>
+              </div>
+            }
+            scrollThreshold={0.9}
+            scrollableTarget="scroll-container"
+          >
+            <div ref={masonryRef} className={styles.masonry}>
+              {paginatedImages.data
+                .filter((imagen) => imagen.imagens && imagen.imagens.length > 0)
+                .map((imagen, index) => {
+                  const imageUrl = imagen.imagens[imagen.imagens.length - 1]; // Get last image
+                  const gridRowSpan = imageHeights[imageUrl] || 20; // Default span
+
+                  return (
+                    <div
+                      key={`template-${imagen._id}-${index}`}
+                      className={styles.masonryItem}
+                      style={{
+                        gridRowEnd: `span ${gridRowSpan}`,
+                      }}
+                    >
+                      <ImagenLibraryPreview
+                        src={imageUrl}
+                        imagenId={imagen._id}
+                        templateId={currentTemplateId}
+                        onImageLoad={handleImageLoad}
+                      />
+                    </div>
+                  );
+                })}
+            </div>
+          </InfiniteScroll>
+        ) : allGeneratedImages.length > 0 ? (
+          <div ref={masonryRef} className={styles.masonry}>
+            {allGeneratedImages.map((imageUrl, index) => {
               const gridRowSpan = imageHeights[imageUrl] || 20; // Default span
-              
+
               // Try to find which generated image set this image belongs to
-              const generateId = generatedImages.generate.images.includes(imageUrl) 
-                ? generatedImages.generate.id 
+              const generateId = generatedImages.generate.images.includes(
+                imageUrl
+              )
+                ? generatedImages.generate.id
                 : null;
-              const editId = generatedImages.edit.images.includes(imageUrl) 
-                ? generatedImages.edit.id 
+              const editId = generatedImages.edit.images.includes(imageUrl)
+                ? generatedImages.edit.id
                 : null;
               const imagenId = generateId || editId;
-              
+
               return (
                 <div
                   key={`generated-${index}`}
                   className={styles.masonryItem}
                   style={{
-                    gridRowEnd: `span ${gridRowSpan}`
+                    gridRowEnd: `span ${gridRowSpan}`,
                   }}
                 >
-                  <ImagenLibraryPreview 
-                    src={imageUrl} 
+                  <ImagenLibraryPreview
+                    src={imageUrl}
                     imagenId={imagenId || undefined}
                     onImageLoad={handleImageLoad}
                   />
                 </div>
               );
-            })
-          ) : (
-            <div className={styles.emptyState}>
-              <p>No images available</p>
-            </div>
-          )}
-          {paginationLoading && (
-            <div className={styles.loadingIndicator}>
-              <p>Loading more images...</p>
-            </div>
-          )}
-        </div>
+            })}
+          </div>
+        ) : (
+          <div className={styles.emptyState}>
+            <p>No images available</p>
+          </div>
+        )}
       </Box>
     </Box>
   );

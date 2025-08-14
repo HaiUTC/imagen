@@ -73,9 +73,11 @@ const downloadImageGenerated = async ({ option, id }: { option: string; id: stri
   if (Array.isArray(images)) {
     await Promise.all(
       images.map(async item => {
-        const uniqueId = uid();
-        const imagePublicUrl = await supabaseService.uploadImageToSupabase(item, 'url', uniqueId);
-        imagePublicUrls.push(imagePublicUrl);
+        if (item) {
+          const uniqueId = uid();
+          const imagePublicUrl = await supabaseService.uploadImageToSupabase(item, 'url', uniqueId);
+          imagePublicUrls.push(imagePublicUrl);
+        }
       }),
     );
   }

@@ -15,3 +15,17 @@ export const imagenDownloadFlow = async (option: string) => {
 
   setLoadingDownload(false);
 };
+
+export const upscaleAllImagesFlow = async (taskId: string) => {
+  const { setLoadingDownload } = useImagenStore.getState();
+
+  setLoadingDownload(true);
+
+  const { images } = await imagenService.downloadImageGenerated({
+    option: "all",
+    id: taskId,
+  });
+  downloadImagesFromArray(images);
+
+  setLoadingDownload(false);
+};

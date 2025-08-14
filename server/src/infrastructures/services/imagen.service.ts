@@ -185,6 +185,10 @@ export const createImagenService = () => {
         }),
       }).then(async res => await res.json());
 
+      if (!image.result) {
+        return { images: [], taskId: '' };
+      }
+
       let status = 'IN_PROGRESS';
 
       await new Promise(resolve => setTimeout(resolve, 30000));
@@ -243,29 +247,33 @@ export const createImagenService = () => {
 
       const imageUrls: Array<{ value: string; type: 'base64' | 'url' }> = [];
 
-      await new Promise(resolve => setTimeout(resolve, 20000));
+      if (image.result) {
+        await new Promise(resolve => setTimeout(resolve, 20000));
 
-      while (status === 'IN_PROGRESS') {
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        while (status === 'IN_PROGRESS') {
+          await new Promise(resolve => setTimeout(resolve, 3000));
 
-        const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${image.result}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${selectedApiKey}`,
-          },
-        }).then(res => res.json());
+          const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${image.result}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${selectedApiKey}`,
+            },
+          }).then(res => res.json());
 
-        status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
-        if (status === 'SUCCESS') {
-          imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
+          status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
+          if (status === 'SUCCESS') {
+            imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
+          }
         }
+
+        // Set API key as inactive after request is complete
+        apiKeyStatusCache.set(selectedApiKey, false);
+
+        return { images: imageUrls, taskId: image.result as string };
       }
 
-      // Set API key as inactive after request is complete
-      apiKeyStatusCache.set(selectedApiKey, false);
-
-      return { images: imageUrls, taskId: image.result as string };
+      return { images: [], taskId: '' };
     } catch (error) {
       const selectedApiKey = getAvailableApiKey();
       if (selectedApiKey) {
@@ -281,6 +289,10 @@ export const createImagenService = () => {
   const downloadImageGenerated = async (taskId: string, index: number, apiKey: string) => {
     let image = '';
 
+    console.log('taskId: ', taskId);
+    console.log('index: ', index);
+    console.log('apiKey: ', apiKey);
+
     const dataUpscaleImagenMixed = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/submit/change`, {
       method: 'POST',
       headers: {
@@ -288,11 +300,17 @@ export const createImagenService = () => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        action: 'UPSCALE',
+        action: 'VARIATION',
         index,
         taskId,
       }),
     }).then(async res => await res.json());
+
+    console.log('dataUpscaleImagenMixed: ', dataUpscaleImagenMixed);
+
+    if (!dataUpscaleImagenMixed.result) {
+      return '';
+    }
 
     let status = 'IN_PROGRESS';
 
@@ -300,17 +318,21 @@ export const createImagenService = () => {
 
     while (status === 'IN_PROGRESS') {
       await new Promise(resolve => setTimeout(resolve, 3000));
-      const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/task/${dataUpscaleImagenMixed.result}/fetch`, {
+      const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${dataUpscaleImagenMixed.result}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${process.env.VISION_API_KEY}`,
         },
       }).then(res => res.json());
+      console.log('statusCheck: ', statusCheck);
+      if (statusCheck.status === 'FAILURE') {
+        return '';
+      }
 
       status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
       if (status === 'SUCCESS') {
-        image = statusCheck.imageUrl;
+        image = statusCheck.task_result.images[0].url;
       }
     }
 
