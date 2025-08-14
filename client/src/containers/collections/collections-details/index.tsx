@@ -5,12 +5,14 @@ import {
   Box,
   InlineGrid,
   Tooltip,
+  Button,
 } from "@shopify/polaris";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import styles from "./collections-details.module.css";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import { useImagenStore, type ImagenValue } from "../../../store/imagen.store";
 import { urlToFile } from "../../../libs/utils/url-2-file";
+import { NatureIcon } from "@shopify/polaris-icons";
 
 interface CollectionsData {
   format: "generate" | "edit";
@@ -75,7 +77,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
         />
         <div className={styles.user_details}>
           <Text as="h6" variant="bodyMd">
-            Hải
+            Rain
           </Text>
           <Text as="span" variant="bodySm" tone="subdued">
             8d ago
@@ -217,9 +219,17 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
       <Box paddingBlock="500">
         {data.imagens.length > 0 && (
           <div className={styles.images_section}>
-            <Text as="h6" variant="bodyMd" fontWeight="semibold">
-              Generated Images
-            </Text>
+            <InlineStack align="space-between">
+              <Text as="h6" variant="bodyMd" fontWeight="semibold">
+                Generated Images
+              </Text>
+
+              {data.imagens.length < 5 && (
+                <Button variant="tertiary" icon={NatureIcon}>
+                  Upscale
+                </Button>
+              )}
+            </InlineStack>
             <div className={styles.images_grid}>
               {data.imagens.map((imageUrl, index) => (
                 <div key={index} className={styles.grid_image_wrapper}>
