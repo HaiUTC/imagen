@@ -107,7 +107,7 @@ Always specify the camera angle or viewpoint at the end.
 
 Your output must:
 
-Be a single, fluid sentence with rich, descriptive language.
+Be a single, fluid sentence with rich, descriptive language, english default.
 
 Avoid bullet points, technical syntax, or generation parameters.
 
