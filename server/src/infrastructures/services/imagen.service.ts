@@ -289,10 +289,6 @@ export const createImagenService = () => {
   const downloadImageGenerated = async (taskId: string, index: number, apiKey: string) => {
     let image = '';
 
-    console.log('taskId: ', taskId);
-    console.log('index: ', index);
-    console.log('apiKey: ', apiKey);
-
     const dataUpscaleImagenMixed = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/submit/change`, {
       method: 'POST',
       headers: {
@@ -300,7 +296,7 @@ export const createImagenService = () => {
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        action: 'VARIATION',
+        action: 'UPSCALE',
         index,
         taskId,
       }),

@@ -11,6 +11,7 @@ export interface ImagenValue {
   format: string;
   taskId: string;
   imagens: string[];
+  status: string;
   data: {
     prompt?: string;
     aspectRatio?: string;

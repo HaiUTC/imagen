@@ -7,7 +7,7 @@ import { imagenRepository } from '~/frame-works/database/repositories/imagen.rep
 import { supabaseService } from '~/infrastructures/services/supabase.service';
 
 const generateImage = async (input: GenerateImagePort) => {
-  const { images, reference, taskId, magicPrompt } = await generateImageFlow(input);
+  const { images, taskId, id: imagenId } = await generateImageFlow(input);
   const imagePublicUrls: string[] = [];
 
   if (Array.isArray(images)) {
@@ -20,25 +20,17 @@ const generateImage = async (input: GenerateImagePort) => {
     );
   }
 
-  const imagen = await imagenRepository.create({
-    format: 'generate',
-    data: {
-      prompt: input.user_prompt,
-      aspectRatio: input.custom_instructions.aspect_ratio,
-      n: input.custom_instructions.n,
-      style: input.custom_instructions.style,
-      reference: reference || [],
-      magic_prompt: magicPrompt || '',
-    },
+  await imagenRepository.updateOne(imagenId as string, {
     taskId: taskId || '',
     imagens: imagePublicUrls,
+    status: 'SUCCESS',
   });
 
-  return { images: imagePublicUrls, taskId, id: imagen._id as string };
+  return { images: imagePublicUrls, taskId, id: imagenId as string };
 };
 
 const editImage = async (prompt: string, images: File[]) => {
-  const { images: imagesEdited, reference, taskId } = await editImageFlow(prompt, images);
+  const { images: imagesEdited, taskId, id: imagenId } = await editImageFlow(prompt, images);
 
   const imagePublicUrls: string[] = [];
 
@@ -52,17 +44,13 @@ const editImage = async (prompt: string, images: File[]) => {
     );
   }
 
-  const imagen = await imagenRepository.create({
-    format: 'edit',
-    data: {
-      prompt: prompt,
-      reference: reference || [],
-    },
-    taskId,
+  await imagenRepository.updateOne(imagenId as string, {
+    taskId: taskId || '',
     imagens: imagePublicUrls,
+    status: 'SUCCESS',
   });
 
-  return { images: imagePublicUrls, taskId, id: imagen._id as string };
+  return { images: imagePublicUrls, taskId, id: imagenId as string };
 };
 
 const downloadImageGenerated = async ({ option, id }: { option: string; id: string }) => {

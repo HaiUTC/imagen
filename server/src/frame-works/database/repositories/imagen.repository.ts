@@ -10,6 +10,10 @@ const createImagenRepository = () => ({
     const imagen = await ImagenModel.findOneAndUpdate({ taskId: id }, { $push: { imagens: { $each: images } } }, { new: true });
     return imagen;
   },
+  updateOne: async (id: string, data: any) => {
+    const imagen = await ImagenModel.findOneAndUpdate({ _id: id }, data, { new: true });
+    return imagen;
+  },
 });
 
 export const imagenRepository = createImagenRepository();
