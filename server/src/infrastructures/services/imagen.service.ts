@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import { LRUCache } from 'lru-cache';
 import { CustomInstructions } from '~/domains/entities/imagen.entity';
-import { SYSTEM_PROMPT_GENERATE_IMAGE, SYSTEM_PROMPT_USER_IMAGE_REFERENCE } from '../data/prompt.data';
+import { SYSTEM_PROMPT_CAMERA_VIEW, SYSTEM_PROMPT_GENERATE_IMAGE, SYSTEM_PROMPT_USER_IMAGE_REFERENCE } from '../data/prompt.data';
 
 // API key status cache using LRU cache
 const apiKeyStatusCache = new LRUCache<string, boolean>({
@@ -71,7 +71,7 @@ export const createImagenService = () => {
   };
 
   // Tạo magic prompt cho việc generate ảnh từ prompt và image reference
-  const magicPromptUserImageReference = async (user_prompt: string, imageReference: string[]) => {
+  const magicPromptUserImageReference = async (user_prompt: string, cameraViewPrompt: string, imageReference: string[]) => {
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
       {
         role: 'system',
@@ -82,7 +82,7 @@ export const createImagenService = () => {
         content: [
           {
             type: 'text',
-            text: user_prompt,
+            text: `${user_prompt} ${cameraViewPrompt ? ` with ${cameraViewPrompt}` : ''}`,
           },
         ],
       },
@@ -98,6 +98,35 @@ export const createImagenService = () => {
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL as string,
 
+      messages,
+    });
+
+    return response.choices[0].message.content || '';
+  };
+
+  // Tạo prompt camera view cho image reference
+  const magicPromptPerspectives = async (imageReference: string) => {
+    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+      {
+        role: 'system',
+        content: SYSTEM_PROMPT_CAMERA_VIEW,
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'image_url',
+            image_url: {
+              url: imageReference,
+              detail: 'high',
+            },
+          },
+        ],
+      },
+    ];
+    const response = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL as string,
+      temperature: 0.8,
       messages,
     });
 
@@ -338,6 +367,7 @@ export const createImagenService = () => {
   return {
     magicPromptImageGenerate,
     magicPromptUserImageReference,
+    magicPromptPerspectives,
     generateImagen,
     editImage,
     generateImagenMixed,

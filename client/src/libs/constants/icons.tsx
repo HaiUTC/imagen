@@ -19,6 +19,7 @@ export const ICONS = {
   ADD: "add",
   NARROW_DOWN: "narrow-down",
   TICK: "tick",
+  PERSPECTIVE: "perspective",
 };
 
 export const svgIcon = (icon: string) => {
@@ -428,6 +429,25 @@ export const svgIcon = (icon: string) => {
             d="M4.147 12.354a.5.5 0 01-.001-.707L9.61 6.163a.55.55 0 01.779 0l5.465 5.484a.5.5 0 01-.708.706L10 7.188l-5.146 5.165a.5.5 0 01-.707.001z"
           ></path>
         </g>
+      </svg>
+    );
+  }
+
+  if (icon === ICONS.PERSPECTIVE) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="22"
+        height="22"
+        fill="inherit"
+        viewBox="0 0 20 20"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M5.058 3.572 15.74 7.475c1.037.38 1.007 1.855-.044 2.191l-4.568 1.462-1.461 4.567c-.337 1.051-1.813 1.081-2.191.045L3.573 5.058c-.338-.926.56-1.824 1.485-1.486"
+        ></path>
       </svg>
     );
   }

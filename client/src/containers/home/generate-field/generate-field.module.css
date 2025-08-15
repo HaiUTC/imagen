@@ -73,6 +73,16 @@
   border-radius: 6px;
 }
 
+.upload :global(.Polaris-Icon svg) {
+  fill: rgb(0, 0, 0, 0.6);
+  stroke-width: 1;
+}
+
+.upload :global(.Polaris-Icon) {
+  width: 23px;
+  height: 23px;
+}
+
 .upload:hover {
   color: rgb(0, 0, 0);
   fill: rgb(0, 0, 0);

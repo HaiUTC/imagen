@@ -19,6 +19,9 @@ export const generateImageFlow = async () => {
         formData.append("images", image);
       });
     }
+    if (data.generate.perspective) {
+      formData.append("perspectives", data.generate.perspective);
+    }
     const { images, taskId, id } = await imagenService.generateImage(formData);
     setTaskIdGenerated(taskId);
     setGeneratedImages("generate", {

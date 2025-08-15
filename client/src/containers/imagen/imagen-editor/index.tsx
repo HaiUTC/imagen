@@ -41,6 +41,25 @@ export const GenerateImageEditor: React.FC = () => {
     ]);
   };
 
+  const handlePerspectiveDropZoneDrop = (
+    _dropFiles: File[],
+    acceptedFiles: File[],
+    _rejectedFiles: File[]
+  ) => {
+    if (acceptedFiles.length > 0) {
+      onChangeDataValue("generate", "perspective", acceptedFiles[0]);
+      setGeneratedImages("generate", {
+        images: [],
+        id: "",
+        taskId: "",
+      });
+    }
+  };
+
+  const handleRemovePerspective = () => {
+    onChangeDataValue("generate", "perspective", undefined);
+  };
+
   const validImageTypes = [
     "image/webp",
     "image/jpeg",
@@ -50,6 +69,10 @@ export const GenerateImageEditor: React.FC = () => {
 
   const fileUpload = (
     <DropZone.FileUpload actionHint="Accepts .webp, .jpeg, .png and .avif" />
+  );
+
+  const perspectiveFileUpload = (
+    <DropZone.FileUpload actionHint="Accepts single .webp, .jpeg, .png and .avif file" />
   );
 
   const uploadedFiles = data.generate.image?.length !== 0 && (
@@ -80,6 +103,33 @@ export const GenerateImageEditor: React.FC = () => {
           </LegacyStack>
         ))}
       </InlineStack>
+    </Box>
+  );
+
+  const uploadedPerspective = data.generate.perspective && (
+    <Box paddingBlockStart="200">
+      <LegacyStack alignment="center">
+        <img
+          src={window.URL.createObjectURL(data.generate.perspective)}
+          alt={data.generate.perspective.name}
+          width="50px"
+          style={{
+            objectFit: "contain",
+            maxHeight: "66.67px",
+            borderRadius: "var(--p-border-radius-100)",
+          }}
+        />
+        <div>
+          <Text as="p"> {data.generate.perspective.name}</Text>
+          <Button
+            variant="plain"
+            tone="critical"
+            onClick={handleRemovePerspective}
+          >
+            Remove
+          </Button>
+        </div>
+      </LegacyStack>
     </Box>
   );
 
@@ -127,6 +177,22 @@ export const GenerateImageEditor: React.FC = () => {
           {fileUpload}
         </DropZone>
         {uploadedFiles}
+      </Box>
+
+      <Box>
+        <Box padding="100">
+          <Text as="span" variant="bodyMd">
+            Reference perspective
+          </Text>
+        </Box>
+        <DropZone
+          onDrop={handlePerspectiveDropZoneDrop}
+          allowMultiple={false}
+          accept={validImageTypes.join(",")}
+        >
+          {perspectiveFileUpload}
+        </DropZone>
+        {uploadedPerspective}
       </Box>
     </BlockStack>
   );

@@ -1,4 +1,4 @@
-import { Box, InlineStack, Text } from "@shopify/polaris";
+import { Box, Icon, InlineStack, Text } from "@shopify/polaris";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import { useImagenStore } from "../../../store/imagen.store";
 import { SettingsGenerate } from "../../layout/editor/settings/settings-generate";
@@ -7,6 +7,7 @@ import { Fragment } from "react/jsx-runtime";
 import { useRef, useEffect, useState } from "react";
 import { generateImageFlow } from "../../../flow/imagen/generate-image.flow";
 import { editImageFlow } from "../../../flow/imagen/edit-image.flow";
+import { ReplaceIcon } from "@shopify/polaris-icons";
 
 export interface GenerateFieldProps {
   isSticky: boolean;
@@ -112,6 +113,23 @@ export const GenerateField: React.FC<GenerateFieldProps> = ({
       } else {
         onChangeDataValue("edit", "image", validFiles);
       }
+    }
+  };
+
+  const handlePerspectiveUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const allowedFormats = [".png", ".jpeg", ".jpg", ".webp", ".avif"];
+    const fileExtension = file.name
+      .toLowerCase()
+      .substring(file.name.lastIndexOf("."));
+
+    if (allowedFormats.includes(fileExtension)) {
+      onChangeDataValue("generate", "perspective", file);
     }
   };
 
@@ -222,6 +240,30 @@ export const GenerateField: React.FC<GenerateFieldProps> = ({
                           </InlineStack>
                         </Box>
                       )}
+                      {format === "generate" && data.generate.perspective && (
+                        <Box
+                          borderInlineEndWidth="025"
+                          borderColor="border-hover"
+                          paddingInline="200"
+                        >
+                          <InlineStack
+                            align="center"
+                            blockAlign="center"
+                            gap="100"
+                          >
+                            <Text as="span" variant="bodyMd" tone="subdued">
+                              Perspective:
+                            </Text>
+                            <img
+                              className={styles.image}
+                              src={URL.createObjectURL(
+                                data.generate.perspective
+                              )}
+                              alt="Reference perspective"
+                            />
+                          </InlineStack>
+                        </Box>
+                      )}
                       <input
                         type="file"
                         multiple={format === "generate" ? true : false}
@@ -233,6 +275,23 @@ export const GenerateField: React.FC<GenerateFieldProps> = ({
                       <label htmlFor="image-upload" className={styles.upload}>
                         {svgIcon(ICONS.UPLOAD)}
                       </label>
+                      {format === "generate" && (
+                        <>
+                          <input
+                            type="file"
+                            accept=".png,.jpeg,.jpg,.webp,.avif"
+                            onChange={handlePerspectiveUpload}
+                            style={{ display: "none" }}
+                            id="perspective-upload"
+                          />
+                          <label
+                            htmlFor="perspective-upload"
+                            className={styles.upload}
+                          >
+                            <Icon source={ReplaceIcon} />
+                          </label>
+                        </>
+                      )}
                       <button
                         className={`${styles.generate} ${
                           isDisableGenerate ? styles.disabled : ""

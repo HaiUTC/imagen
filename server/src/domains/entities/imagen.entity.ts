@@ -4,6 +4,7 @@ export interface CustomInstructions {
   aspect_ratio: string;
   style: string;
   images: File[] | null;
+  perspectives: File[] | null;
 }
 
 export interface ImagenValue {
@@ -19,6 +20,10 @@ export interface ImagenValue {
     style?: string;
     magic_prompt?: string;
     reference?: string[];
+    perspective?: {
+      image?: string;
+      analytic?: string;
+    };
   };
   createdAt?: Date;
   updatedAt?: Date;

@@ -8,6 +8,7 @@ const ImagenSchema = new Schema<ImagenDbModel>(
     format: { type: String, required: true },
     data: { type: Schema.Types.Mixed, required: true },
     taskId: { type: String, required: false },
+    status: { type: String, required: true },
     imagens: { type: [String], required: true },
   },
   { timestamps: true },

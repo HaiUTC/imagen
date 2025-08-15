@@ -18,6 +18,7 @@ export class GenerativeController extends Controller {
     @FormField() aspect_ratio: string,
     @FormField() style: string,
     @UploadedFiles() images?: Express.Multer.File[],
+    @UploadedFiles() perspectives?: Express.Multer.File[],
   ): Promise<{ images: string[]; taskId?: string; id: string }> {
     try {
       // Parse the custom_instructions JSON string
@@ -27,6 +28,7 @@ export class GenerativeController extends Controller {
         aspect_ratio,
         style,
         images: [],
+        perspectives: [],
       };
 
       // If a reference image was uploaded, convert it to the expected format
@@ -45,6 +47,15 @@ export class GenerativeController extends Controller {
           const fileBlob = new Blob([processedReferenceImage.buffer], { type: processedReferenceImage.mimetype });
           const file = new File([fileBlob], processedReferenceImage.originalname, { type: processedReferenceImage.mimetype });
           parsedCustomInstructions.images?.push(file);
+        }
+      }
+
+      if (perspectives && perspectives.length) {
+        for (let i = 0; i < perspectives.length; i++) {
+          const perspective = perspectives[i];
+          const perspectiveBlob = new Blob([perspective.buffer], { type: perspective.mimetype });
+          const perspectiveFile = new File([perspectiveBlob], perspective.originalname, { type: perspective.mimetype });
+          parsedCustomInstructions.perspectives?.push(perspectiveFile);
         }
       }
 

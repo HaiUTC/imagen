@@ -23,6 +23,7 @@ interface GenerateValue {
   aspect_ratio: string;
   style: string;
   image?: File[];
+  perspective?: File;
 }
 
 interface EditValue {
@@ -48,7 +49,7 @@ export interface ImagenStore {
   onChangeDataValue: (
     format: keyof ImagenValue,
     key: string,
-    value: string | number | File[]
+    value: string | number | File[] | File
   ) => void;
   setGeneratedImages: (
     format: keyof GeneratedImagesValue,
@@ -88,6 +89,7 @@ export const useImagenStore = create<ImagenStore>((set) => ({
       aspect_ratio: "3:4",
       style: "realistic",
       image: [],
+      perspective: undefined,
     },
     edit: {
       prompt: "",
@@ -115,7 +117,7 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   onChangeDataValue: (
     format: keyof ImagenValue,
     key: string,
-    value: string | number | File[]
+    value: string | number | File[] | File
   ) => {
     set((state) => ({
       data: {
@@ -145,6 +147,7 @@ export const useImagenStore = create<ImagenStore>((set) => ({
           aspect_ratio: "3:4",
           style: "realistic",
           image: [],
+          perspective: undefined,
         },
         edit: {
           prompt: "",

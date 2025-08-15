@@ -8,7 +8,7 @@ import { ImagenValue } from '~/domains/entities/imagen.entity';
 export const generateImageFlow = async (input: GenerateImagePort) => {
   try {
     const { user_prompt, custom_instructions } = input;
-    const { n, images, aspect_ratio } = custom_instructions;
+    const { n, images, aspect_ratio, perspectives } = custom_instructions;
 
     if (images && images.length) {
       const imageUploadSupaBases = await Promise.all(
@@ -18,7 +18,16 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
         }),
       );
 
-      const userMagicPrompt = await imagenService.magicPromptUserImageReference(user_prompt, imageUploadSupaBases);
+      let perspectivePrompt = '';
+      let perspectiveUploadSupaBase = '';
+
+      if (perspectives && perspectives.length) {
+        perspectiveUploadSupaBase = await supabaseService.uploadImageToSupabase(URL.createObjectURL(perspectives[0] as Blob), 'url', uid());
+
+        perspectivePrompt = await imagenService.magicPromptPerspectives(perspectiveUploadSupaBase);
+      }
+
+      const userMagicPrompt = await imagenService.magicPromptUserImageReference(user_prompt, perspectivePrompt, imageUploadSupaBases);
 
       const imagen = (await imagenRepository.create({
         format: 'generate',
@@ -28,6 +37,10 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
           n: input.custom_instructions.n,
           style: input.custom_instructions.style,
           reference: imageUploadSupaBases || [],
+          perspective: {
+            image: perspectiveUploadSupaBase,
+            analytic: perspectivePrompt,
+          },
           magic_prompt: userMagicPrompt || '',
         },
         status: 'PROCESSING',
