@@ -209,7 +209,7 @@ export const createImagenService = () => {
           Authorization: `Bearer ${selectedApiKey}`,
         },
         body: JSON.stringify({
-          prompt: `${imageReference.join(' ')} ${prompt} --aspect ${aspect_ratio} --iw 2`,
+          prompt: `${imageReference.join(' ')} ${prompt} --aspect ${aspect_ratio} --iw 2 `,
           botType: 'MID_JOURNEY',
         }),
       }).then(async res => await res.json());

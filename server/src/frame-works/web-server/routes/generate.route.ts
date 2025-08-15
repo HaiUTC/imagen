@@ -1,4 +1,4 @@
-import { Controller, Post, Request, Route, Tags, FormField, UploadedFiles } from 'tsoa';
+import { Controller, Post, Request, Route, Tags, FormField, UploadedFiles, Query } from 'tsoa';
 import { Request as RequestExpress } from 'express';
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { GenerateImageService } from '~/controllers/generate-image.controller';
@@ -113,4 +113,5 @@ export class GenerativeController extends Controller {
       return { images: [], taskId: undefined, id: '' };
     }
   }
+
 }

@@ -1,4 +1,4 @@
-import { supabaseService } from '~/infrastructures/services/supabase.service';
+import { s3Service } from '~/infrastructures/services/s3.service';
 import { uid } from '../utils/uid';
 import { imagenService } from '~/infrastructures/services/imagen.service';
 import { imagenRepository } from '~/frame-works/database/repositories/imagen.repository';
@@ -8,7 +8,7 @@ export const editImageFlow = async (prompt: string, images: File[]) => {
   try {
     const imageUploadSupaBases = await Promise.all(
       images.map(async image => {
-        const imageUploadSupaBase = await supabaseService.uploadImageToSupabase(URL.createObjectURL(image as Blob), 'url', uid());
+        const imageUploadSupaBase = await s3Service.uploadImage(URL.createObjectURL(image as Blob), 'url', uid());
         return imageUploadSupaBase;
       }),
     );

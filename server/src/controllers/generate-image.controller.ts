@@ -4,7 +4,7 @@ import { generateImageFlow } from '~/applications/flow/generate-image.flow';
 import { uid } from '~/applications/utils/uid';
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { imagenRepository } from '~/frame-works/database/repositories/imagen.repository';
-import { supabaseService } from '~/infrastructures/services/supabase.service';
+import { s3Service } from '~/infrastructures/services/s3.service';
 
 const generateImage = async (input: GenerateImagePort) => {
   const { images, taskId, id: imagenId } = await generateImageFlow(input);
@@ -13,8 +13,8 @@ const generateImage = async (input: GenerateImagePort) => {
   if (Array.isArray(images)) {
     await Promise.all(
       images.map(async item => {
-        const uniqueId = uid();
-        const imagePublicUrl = await supabaseService.uploadImageToSupabase(item.value, 'url', uniqueId);
+        const uniqueId = uid('generate_');
+        const imagePublicUrl = await s3Service.uploadImage(item.value, 'url', uniqueId);
         imagePublicUrls.push(imagePublicUrl);
       }),
     );
@@ -38,7 +38,7 @@ const editImage = async (prompt: string, images: File[]) => {
     await Promise.all(
       imagesEdited.map(async item => {
         const uniqueId = uid();
-        const imagePublicUrl = await supabaseService.uploadImageToSupabase(item.value, 'url', uniqueId);
+        const imagePublicUrl = await s3Service.uploadImage(item.value, 'url', uniqueId);
         imagePublicUrls.push(imagePublicUrl);
       }),
     );
@@ -63,7 +63,7 @@ const downloadImageGenerated = async ({ option, id }: { option: string; id: stri
       images.map(async item => {
         if (item) {
           const uniqueId = uid();
-          const imagePublicUrl = await supabaseService.uploadImageToSupabase(item, 'url', uniqueId);
+          const imagePublicUrl = await s3Service.uploadImage(item, 'url', uniqueId);
           imagePublicUrls.push(imagePublicUrl);
         }
       }),

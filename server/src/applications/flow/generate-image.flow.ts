@@ -1,7 +1,7 @@
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { imagenService } from '~/infrastructures/services/imagen.service';
 import { uid } from '../utils/uid';
-import { supabaseService } from '~/infrastructures/services/supabase.service';
+import { s3Service } from '~/infrastructures/services/s3.service';
 import { imagenRepository } from '~/frame-works/database/repositories/imagen.repository';
 import { ImagenValue } from '~/domains/entities/imagen.entity';
 
@@ -11,23 +11,23 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
     const { n, images, aspect_ratio, perspectives } = custom_instructions;
 
     if (images && images.length) {
-      const imageUploadSupaBases = await Promise.all(
+      const imageUploadS3s = await Promise.all(
         images.map(async image => {
-          const imageUploadSupaBase = await supabaseService.uploadImageToSupabase(URL.createObjectURL(image as Blob), 'url', uid());
-          return imageUploadSupaBase;
+          const imageUploadS3 = await s3Service.uploadImage(URL.createObjectURL(image as Blob), 'url', uid('reference_'));
+          return imageUploadS3;
         }),
       );
 
       let perspectivePrompt = '';
-      let perspectiveUploadSupaBase = '';
+      let perspectiveUploadS3 = '';
 
       if (perspectives && perspectives.length) {
-        perspectiveUploadSupaBase = await supabaseService.uploadImageToSupabase(URL.createObjectURL(perspectives[0] as Blob), 'url', uid());
+        perspectiveUploadS3 = await s3Service.uploadImage(URL.createObjectURL(perspectives[0] as Blob), 'url', uid('perspective_'));
 
-        perspectivePrompt = await imagenService.magicPromptPerspectives(perspectiveUploadSupaBase);
+        perspectivePrompt = await imagenService.magicPromptPerspectives(perspectiveUploadS3);
       }
 
-      const userMagicPrompt = await imagenService.magicPromptUserImageReference(user_prompt, perspectivePrompt, imageUploadSupaBases);
+      const userMagicPrompt = await imagenService.magicPromptUserImageReference(user_prompt, perspectivePrompt, imageUploadS3s);
 
       const imagen = (await imagenRepository.create({
         format: 'generate',
@@ -36,9 +36,9 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
           aspectRatio: input.custom_instructions.aspect_ratio,
           n: input.custom_instructions.n,
           style: input.custom_instructions.style,
-          reference: imageUploadSupaBases || [],
+          reference: imageUploadS3s || [],
           perspective: {
-            image: perspectiveUploadSupaBase,
+            image: perspectiveUploadS3,
             analytic: perspectivePrompt,
           },
           magic_prompt: userMagicPrompt || '',
@@ -48,13 +48,9 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
         imagens: [],
       })) as ImagenValue;
 
-      const { images: imagesGenerated, taskId } = await imagenService.generateImagenMixed(
-        userMagicPrompt,
-        aspect_ratio,
-        imageUploadSupaBases,
-      );
+      const { images: imagesGenerated, taskId } = await imagenService.generateImagenMixed(userMagicPrompt, aspect_ratio, imageUploadS3s);
 
-      return { images: imagesGenerated, reference: imageUploadSupaBases, taskId, id: imagen._id as string };
+      return { images: imagesGenerated, reference: imageUploadS3s, taskId, id: imagen._id as string };
     } else {
       const magicPrompt = await imagenService.magicPromptImageGenerate(user_prompt, custom_instructions);
       const images = await imagenService.generateImagen(magicPrompt, aspect_ratio, n);
