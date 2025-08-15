@@ -57,7 +57,7 @@ export const GenerateImageEditor: React.FC = () => {
   };
 
   const handleRemovePerspective = () => {
-    onChangeDataValue("generate", "perspective", undefined);
+    onChangeDataValue("generate", "perspective", "");
   };
 
   const validImageTypes = [
