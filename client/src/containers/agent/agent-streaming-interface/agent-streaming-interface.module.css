@@ -1,0 +1,61 @@
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--p-color-border-subdued);
+  border-top: 2px solid var(--p-color-border-info);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.step-detail {
+  transition: all 0.3s ease;
+}
+
+.step-detail:hover {
+  box-shadow: var(--p-shadow-card-hover);
+}
+
+.event-item {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--p-color-border-subdued-on-bg-surface-neutral);
+}
+
+.event-item:last-child {
+  border-bottom: none;
+}
+
+.badge-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.generated-image {
+  max-width: 150px;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--p-color-border-subdued);
+  transition: transform 0.2s ease;
+}
+
+.generated-image:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}

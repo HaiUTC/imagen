@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { decode } from 'base64-arraybuffer';
+
 const createS3Service = () => {
   const s3Client = new S3Client({
     endpoint: `https://${process.env.S3_ENDPOINT}`,
@@ -21,7 +22,7 @@ const createS3Service = () => {
       const response = await fetch(image);
       const arrayBuffer = await response.arrayBuffer();
       buffer = Buffer.from(arrayBuffer);
-      
+
       const contentTypeHeader = response.headers.get('content-type');
       if (contentTypeHeader) {
         contentType = contentTypeHeader;
@@ -29,7 +30,7 @@ const createS3Service = () => {
     }
 
     const key = `${uniqueId}.jpg`;
-    
+
     const command = new PutObjectCommand({
       Bucket: process.env.S3_BUCKET_NAME!,
       Key: key,

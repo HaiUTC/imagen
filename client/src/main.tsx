@@ -6,6 +6,7 @@ import Imagen from "./containers/imagen";
 import Layout from "./containers/layout";
 import ImagEdit from "./containers/imagedit";
 import CollectionsContainer from "./containers/collections";
+import Agent from "./containers/agent";
 import { useImagenStore } from "./store/imagen.store";
 import { useEffect } from "react";
 
@@ -18,6 +19,8 @@ function App() {
       setFormat("generate");
     } else if (pathname.includes("imagedit")) {
       setFormat("edit");
+    } else if (pathname.includes("agent")) {
+      setFormat("agent");
     }
   }, [pathname]);
 
@@ -27,6 +30,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/imagen" element={<Imagen />} />
         <Route path="/imagedit" element={<ImagEdit />} />
+        <Route path="/agent" element={<Agent />} />
         <Route path="/i/:id" element={<CollectionsContainer />} />
       </Route>
     </Routes>
