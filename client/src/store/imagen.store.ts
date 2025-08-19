@@ -31,6 +31,19 @@ interface EditValue {
   image?: File[];
 }
 
+export interface StreamingStatus {
+  step: "analytic_image" | "magic_processing" | "generate_image" | "workflow";
+  type:
+    | "step_start"
+    | "step_complete"
+    | "step_progress"
+    | "workflow_complete"
+    | "workflow_error";
+  progress: number;
+  message?: string;
+  data?: any;
+}
+
 export interface ImagenStore {
   format: keyof ImagenValue;
   loadingGenerate: boolean;
@@ -40,6 +53,8 @@ export interface ImagenStore {
   errors: Record<string, string>;
   isDownloaded: boolean;
   generatedImages: GeneratedImagesValue;
+  streamingStatus: StreamingStatus | null;
+  isStreamingEnabled: boolean;
   setFormat: (format: keyof ImagenValue) => void;
   setLoadingGenerate: (loadingGenerate: boolean) => void;
   setTaskIdGenerated: (taskIdGenerated: string) => void;
@@ -59,7 +74,8 @@ export interface ImagenStore {
       taskId: string;
     }
   ) => void;
-
+  setStreamingStatus: (status: StreamingStatus | null) => void;
+  setStreamingEnabled: (enabled: boolean) => void;
   clearData: () => void;
 }
 
@@ -70,6 +86,8 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   loadingDownload: false,
   errors: {},
   isDownloaded: false,
+  streamingStatus: null,
+  isStreamingEnabled: true,
   generatedImages: {
     generate: {
       images: [],
@@ -138,6 +156,12 @@ export const useImagenStore = create<ImagenStore>((set) => ({
       generatedImages: { ...state.generatedImages, [format]: generatedImages },
     }));
   },
+  setStreamingStatus: (status: StreamingStatus | null) => {
+    set({ streamingStatus: status });
+  },
+  setStreamingEnabled: (enabled: boolean) => {
+    set({ isStreamingEnabled: enabled });
+  },
   clearData: () => {
     set({
       data: {
@@ -159,6 +183,7 @@ export const useImagenStore = create<ImagenStore>((set) => ({
       loadingDownload: false,
       errors: {},
       isDownloaded: false,
+      streamingStatus: null,
       generatedImages: {
         generate: {
           images: [],

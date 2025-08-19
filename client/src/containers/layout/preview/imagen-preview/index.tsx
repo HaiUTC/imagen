@@ -21,7 +21,11 @@ export const ImageGenPreview: React.FC<ImageGenPreviewProps> = ({
   const handleImageClick = (imageUrl: string) => {
     // Find the imagen ID for this image
     const currentGenerated = format ? generatedImages[format] : null;
-    if (currentGenerated && currentGenerated.images.includes(imageUrl) && currentGenerated.id) {
+    if (
+      currentGenerated &&
+      currentGenerated.images.includes(imageUrl) &&
+      currentGenerated.id
+    ) {
       navigate(`/i/${currentGenerated.id}`);
     }
   };
@@ -45,11 +49,14 @@ export const ImageGenPreview: React.FC<ImageGenPreviewProps> = ({
                 className={`${styles.imagen_preview_image_img} ${
                   loading ? styles.imagen_preview_image_img_loading : ""
                 }`}
-                onClick={() => !loading && handleImageClick(selectedImage || images?.[0] || "")}
+                onClick={() =>
+                  !loading &&
+                  handleImageClick(selectedImage || images?.[0] || "")
+                }
                 style={{ cursor: loading ? "default" : "pointer" }}
               />
 
-              {loading && <ImagenPreviewAnimation />}
+              {loading && <ImagenPreviewAnimation autoStep={true} />}
             </div>
             <div className={styles.gallery}>
               {images.length > 1 &&

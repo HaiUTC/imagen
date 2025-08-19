@@ -24,116 +24,43 @@ export class MultiProviderRouterAgent {
       avgTime: 60,
       supported: true,
     });
-
-    this.providers.set('imagen', {
-      strengths: ['general purpose', 'fast generation', 'simple images', 'cost-effective', 'standard quality'],
-      cost: 0.04,
-      avgTime: 30,
-      supported: true,
-    });
   }
 
   async selectProviders(userInput: UserInput, enhancedPrompt: EnhancedPrompt): Promise<ProviderOption[]> {
-    try {
-      const selectionPrompt = `
-You are an AI model selection expert who determines the best image generation provider for specific requests.
-
-USER REQUEST: "${userInput.prompt}"
-ENHANCED PROMPT: "${enhancedPrompt.optimizedPrompt}"
-STYLE MODIFIERS: ${enhancedPrompt.styleModifiers.join(', ')}
-TECHNICAL PARAMS: ${JSON.stringify(enhancedPrompt.technicalParams)}
-
-AVAILABLE PROVIDERS:
-1. Midjourney - Use for: detailed images, product photography, combining 2+ images, complex compositions (Cost: $0.08, Time: ~60s)
-2. Imagen - Use for: general purpose images, simple requests, fast generation (Cost: $0.04, Time: ~30s)
-
-SELECTION RULES:
-- Use Midjourney if the request involves:
-  * Detailed, intricate images
-  * Product photography
-  * Combining multiple images together
-  * Complex compositions or artistic style
-  * High-quality professional imagery
-- Use Imagen for all other cases:
-  * Simple image generation
-  * General purpose requests
-  * Fast turnaround needed
-  * Standard quality images
-
-USER PREFERENCES:
-- Quality: ${userInput.preferences?.quality || 'standard'}
-- Providers: ${userInput.preferences?.providers?.join(', ') || 'Any'}
-
-Analyze the request and select the most appropriate provider. Return only ONE provider that best matches the criteria.
-
-Format your response as a JSON array with one element:
-[
-  {
-    "provider": "midjourney" or "imagen",
-    "confidence": 95,
-    "strengths": ["reason1", "reason2"],
-    "estimatedCost": 0.08 or 0.04,
-    "estimatedTime": 60 or 30
-  }
-]
-`;
-
-      const response = await this.chatService.createChatCompletion([{ role: 'user', content: selectionPrompt }], {
-        temperature: 0.4,
-        maxTokens: 800,
-      });
-
-      const selections = JSON.parse(response.replace(/```json/g, '').replace(/```/g, ''));
-
-      return selections.filter(
-        (option: ProviderOption) => this.providers.has(option.provider) && this.providers.get(option.provider)?.supported,
-      );
-    } catch (error) {
-      console.error('Provider selection failed:', error);
-      return [
-        {
-          provider: 'imagen',
-          confidence: 80,
-          strengths: ['general purpose', 'fast generation'],
-          estimatedCost: 0.04,
-          estimatedTime: 30,
-        },
-      ];
-    }
+    // Always return Midjourney as the only provider
+    return [
+      {
+        provider: 'midjourney',
+        confidence: 100,
+        strengths: [
+          'detailed images',
+          'product photography',
+          'artistic style',
+          'high quality',
+          'creative interpretation'
+        ],
+        estimatedCost: 0.08,
+        estimatedTime: 60,
+      },
+    ];
   }
 
   async generateWithProvider(provider: string, enhancedPrompt: EnhancedPrompt, userInput: UserInput): Promise<GenerationResult> {
     const startTime = Date.now();
 
     try {
-      switch (provider) {
-        case 'midjourney':
-          return {
-            images: ['https://s3.awe7.com/hai-imagegen/reference_medlycb55ua6.jpg'],
-            provider: 'midjourney',
-            metadata: {
-              prompt: enhancedPrompt.optimizedPrompt,
-              style: enhancedPrompt.styleModifiers.join(', '),
-              aspectRatio: '1:1',
-              taskId: '123',
-              method: 'mixed',
-            },
-            cost: 0.08,
-            generationTime: Date.now() - startTime,
-          };
-        // return await this.generateWithMidjourney(enhancedPrompt, userInput);
-        case 'imagen':
-          return await this.generateWithImagen(enhancedPrompt, userInput);
-        default:
-          throw new Error(`Provider ${provider} not supported`);
+      if (provider !== 'midjourney') {
+        throw new Error(`Provider ${provider} not supported. Only Midjourney is available.`);
       }
+
+      return await this.generateWithMidjourney(enhancedPrompt, userInput);
     } catch (error) {
       console.error(`Generation failed with ${provider}:`, error);
       return {
         images: [],
         provider,
         metadata: { error: error instanceof Error ? error.message : 'Unknown error' },
-        cost: this.providers.get(provider)?.cost || 0,
+        cost: this.providers.get(provider)?.cost || 0.08,
         generationTime: Date.now() - startTime,
       };
     }
@@ -199,65 +126,4 @@ Format your response as a JSON array with one element:
     }
   }
 
-  private async generateWithImagen(enhancedPrompt: EnhancedPrompt, userInput: UserInput): Promise<GenerationResult> {
-    const startTime = Date.now();
-
-    try {
-      const aspectRatio = enhancedPrompt.technicalParams.aspectRatio || '1:1';
-      const numImages = enhancedPrompt.technicalParams.numImages || 1;
-
-      // Check if user has reference images
-      if (userInput.images && userInput.images.length > 0) {
-        // Use generateImagenMixed for reference images
-        const { images } = await imagenService.generateImagenMixed(
-          enhancedPrompt.optimizedPrompt,
-          aspectRatio,
-          userInput.images.map(img => img.url),
-        );
-
-        return {
-          images: images.map(img => img.value),
-          provider: 'imagen',
-          metadata: {
-            prompt: enhancedPrompt.optimizedPrompt,
-            aspectRatio,
-            quality: userInput.preferences?.quality || 'standard',
-            method: 'mixed',
-          },
-          cost: 0.04,
-          generationTime: Date.now() - startTime,
-        };
-      } else {
-        // Use standard generateImagen for text-only prompts
-        const images = await imagenService.generateImagen(enhancedPrompt.optimizedPrompt, aspectRatio, numImages);
-
-        return {
-          images: images.map(img => img.value),
-          provider: 'imagen',
-          metadata: {
-            prompt: enhancedPrompt.optimizedPrompt,
-            aspectRatio,
-            quality: userInput.preferences?.quality || 'standard',
-            method: 'standard',
-          },
-          cost: 0.04,
-          generationTime: Date.now() - startTime,
-        };
-      }
-    } catch (error) {
-      console.error('Error in generateWithImagen:', error);
-      return {
-        images: [],
-        provider: 'imagen',
-        metadata: {
-          prompt: enhancedPrompt.optimizedPrompt,
-          aspectRatio: enhancedPrompt.technicalParams.aspectRatio || '1:1',
-          quality: userInput.preferences?.quality || 'standard',
-          error: error instanceof Error ? error.message : 'Unknown error',
-        },
-        cost: 0.04,
-        generationTime: Date.now() - startTime,
-      };
-    }
-  }
 }

@@ -4,13 +4,22 @@ import { uid } from '../utils/uid';
 import { s3Service } from '~/infrastructures/services/s3.service';
 import { imagenRepository } from '~/frame-works/database/repositories/imagen.repository';
 import { ImagenValue } from '~/domains/entities/imagen.entity';
+import { StreamingEvent } from '../events/streaming-event.class';
 
-export const generateImageFlow = async (input: GenerateImagePort) => {
+export const generateImageFlow = async (input: GenerateImagePort, onEvent?: (event: StreamingEvent) => void) => {
+  const emitEvent = (event: StreamingEvent) => {
+    onEvent?.(event);
+    return event;
+  };
+
   try {
     const { user_prompt, custom_instructions } = input;
     const { n, images, aspect_ratio, perspectives } = custom_instructions;
 
     if (images && images.length) {
+      // Step 1: Analytic Image (Upload to S3 and analyze perspective)
+      emitEvent(StreamingEvent.stepStart('analytic_image'));
+
       const imageUploadS3s = await Promise.all(
         images.map(async image => {
           const imageUploadS3 = await s3Service.uploadImage(URL.createObjectURL(image as Blob), 'url', uid('reference_'));
@@ -23,9 +32,11 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
 
       if (perspectives && perspectives.length) {
         perspectiveUploadS3 = await s3Service.uploadImage(URL.createObjectURL(perspectives[0] as Blob), 'url', uid('perspective_'));
-
         perspectivePrompt = await imagenService.magicPromptPerspectives(perspectiveUploadS3);
       }
+
+      // Step 2: Magic Processing (Generate magic prompt)
+      emitEvent(StreamingEvent.stepStart('magic_processing'));
 
       const userMagicPrompt = await imagenService.magicPromptUserImageReference(user_prompt, perspectivePrompt, imageUploadS3s);
 
@@ -48,12 +59,48 @@ export const generateImageFlow = async (input: GenerateImagePort) => {
         imagens: [],
       })) as ImagenValue;
 
-      const { images: imagesGenerated, taskId } = await imagenService.generateImagenMixed(userMagicPrompt, aspect_ratio, imageUploadS3s);
+      // Step 3: Generate Image with progress tracking
+      emitEvent(StreamingEvent.stepStart('generate_image'));
+
+      const { images: imagesGenerated, taskId } = await imagenService.generateImagenMixed(
+        userMagicPrompt,
+        aspect_ratio,
+        imageUploadS3s,
+        (process: number) => {
+          emitEvent(StreamingEvent.stepProgress('generate_image', process));
+        },
+      );
+
+      emitEvent(
+        StreamingEvent.stepComplete('generate_image', 100, {
+          images: imagesGenerated,
+          taskId,
+        }),
+      );
 
       return { images: imagesGenerated, reference: imageUploadS3s, taskId, id: imagen._id as string };
     } else {
+      // Simple flow without streaming for text-only prompts
+      emitEvent(StreamingEvent.stepStart('magic_processing', 0));
+
       const magicPrompt = await imagenService.magicPromptImageGenerate(user_prompt, custom_instructions);
+
+      emitEvent(
+        StreamingEvent.stepComplete('magic_processing', 50, {
+          magicPrompt,
+        }),
+      );
+
+      emitEvent(StreamingEvent.stepStart('generate_image', 50));
+
       const images = await imagenService.generateImagen(magicPrompt, aspect_ratio, n);
+
+      emitEvent(
+        StreamingEvent.stepComplete('generate_image', 100, {
+          images,
+        }),
+      );
+
       return { images, magicPrompt, taskId: '', id: '' };
     }
   } catch (error) {

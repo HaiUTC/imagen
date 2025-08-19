@@ -1,9 +1,10 @@
 import { Controller, Post, Request, Route, Tags, FormField, UploadedFiles, Query } from 'tsoa';
-import { Request as RequestExpress } from 'express';
+import { Request as RequestExpress, Response as ResponseExpress } from 'express';
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { GenerateImageService } from '~/controllers/generate-image.controller';
 import { CustomInstructions } from '~/domains/entities/imagen.entity';
 import { convertToSupportedFormat, isValidImageFormat } from '~/applications/utils/image-converter.util';
+import { StreamingEvent } from '~/applications/events/streaming-event.class';
 
 @Route('/generative')
 @Tags('Generative')
@@ -81,6 +82,106 @@ export class GenerativeController extends Controller {
     });
   }
 
+  /**
+   * Generate content streaming for real-time updates (FormData with file upload)
+   */
+  @Post('/image/streaming')
+  public async generativeImageStreaming(
+    @Request() req: RequestExpress & { res: ResponseExpress },
+    @FormField() prompt: string,
+    @FormField() n: string,
+    @FormField() aspect_ratio: string,
+    @FormField() style: string,
+    @UploadedFiles() images?: Express.Multer.File[],
+    @UploadedFiles() perspectives?: Express.Multer.File[],
+  ): Promise<any> {
+    try {
+      const res = req.res;
+
+      // Set headers for Server-Sent Events
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control',
+      });
+
+      // Parse the custom_instructions
+      let parsedCustomInstructions: CustomInstructions = {
+        prompt,
+        n: parseInt(n),
+        aspect_ratio,
+        style,
+        images: [],
+        perspectives: [],
+      };
+
+      // Process uploaded images
+      if (images && images.length) {
+        for (let i = 0; i < images.length; i++) {
+          const image = images[i];
+          if (!isValidImageFormat(image)) {
+            throw new Error(`Unsupported reference image format: ${image.mimetype}. Please upload a valid image file.`);
+          }
+          const processedReferenceImage = await convertToSupportedFormat(image);
+          const fileBlob = new Blob([processedReferenceImage.buffer], { type: processedReferenceImage.mimetype });
+          const file = new File([fileBlob], processedReferenceImage.originalname, { type: processedReferenceImage.mimetype });
+          parsedCustomInstructions.images?.push(file);
+        }
+      }
+
+      if (perspectives && perspectives.length) {
+        for (let i = 0; i < perspectives.length; i++) {
+          const perspective = perspectives[i];
+          const perspectiveBlob = new Blob([perspective.buffer], { type: perspective.mimetype });
+          const perspectiveFile = new File([perspectiveBlob], perspective.originalname, { type: perspective.mimetype });
+          parsedCustomInstructions.perspectives?.push(perspectiveFile);
+        }
+      }
+
+      const data: GenerateImagePort = {
+        user_prompt: prompt,
+        custom_instructions: parsedCustomInstructions,
+      };
+
+      // Stream the generation process
+      const result = await GenerateImageService.generateImageStreaming(data, (event: StreamingEvent) => {
+        res.write(`event: ${event.type}\n`);
+        res.write(`data: ${JSON.stringify(event.toJSON())}\n\n`);
+
+        if (res.flushHeaders) {
+          res.flushHeaders();
+        }
+      });
+
+      res.end();
+
+      return result;
+    } catch (error) {
+      console.log('Generate image streaming error ====> ', error);
+      const res = req.res;
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred',
+        });
+      } else {
+        res.write(`event: error\n`);
+        res.write(
+          `data: ${JSON.stringify({
+            type: 'error',
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error occurred',
+            timestamp: new Date().toISOString(),
+          })}\n\n`,
+        );
+        res.end();
+      }
+      return { images: [], taskId: '', id: '' };
+    }
+  }
+
   @Post('/edit')
   public async editImage(
     @FormField() prompt: string,
@@ -113,5 +214,4 @@ export class GenerativeController extends Controller {
       return { images: [], taskId: undefined, id: '' };
     }
   }
-
 }

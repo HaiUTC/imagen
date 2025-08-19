@@ -189,7 +189,12 @@ export const createImagenService = () => {
   };
 
   // Generate ảnh từ prompt và image reference
-  const generateImagenMixed = async (prompt: string, aspect_ratio: string = '1:1', imageReference: string[]) => {
+  const generateImagenMixed = async (
+    prompt: string,
+    aspect_ratio: string = '1:1',
+    imageReference: string[],
+    onEvent?: (process: number) => void,
+  ) => {
     try {
       // Initialize cache if not already done
       initializeApiKeyCache();
@@ -199,8 +204,6 @@ export const createImagenService = () => {
 
       // Set selected API key as active
       apiKeyStatusCache.set(selectedApiKey, true);
-
-      const imageUrls: Array<{ value: string; type: 'base64' | 'url' }> = [];
 
       const image = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/submit/imagine`, {
         method: 'POST',
@@ -218,31 +221,12 @@ export const createImagenService = () => {
         return { images: [], taskId: '' };
       }
 
-      let status = 'IN_PROGRESS';
-
-      await new Promise(resolve => setTimeout(resolve, 30000));
-
-      while (status === 'IN_PROGRESS') {
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${image.result}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${selectedApiKey}`,
-          },
-        }).then(res => res.json());
-
-        status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
-        if (status === 'SUCCESS') {
-          imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
-        }
-      }
+      const { images } = await poolImageTask(image.result, selectedApiKey, onEvent);
 
       // Set API key as inactive after request is complete
       apiKeyStatusCache.set(selectedApiKey, false);
 
-      return { images: imageUrls, taskId: image.result as string };
+      return { images, taskId: image.result as string };
     } catch (error) {
       // Ensure API key is set to inactive even if request fails
       const selectedApiKey = getAvailableApiKey();
@@ -362,6 +346,46 @@ export const createImagenService = () => {
     }
 
     return image;
+  };
+
+  const poolImageTask = async (taskId: string, apiKey: string, onEvent?: (progress: number) => void) => {
+    let status = 'IN_PROGRESS';
+
+    const imageUrls: Array<{ value: string; type: 'base64' | 'url' }> = [];
+
+    if (taskId) {
+      await new Promise(resolve => setTimeout(resolve, 20000));
+
+      while (status === 'IN_PROGRESS') {
+        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${taskId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+        }).then(res => res.json());
+
+        status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
+
+        const progress = Number.parseInt(statusCheck.progress) || 0;
+
+        if (progress && onEvent) {
+          onEvent(progress);
+        }
+        if (status === 'SUCCESS') {
+          imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
+        }
+      }
+
+      // Set API key as inactive after request is complete
+      apiKeyStatusCache.set(apiKey, false);
+
+      return { images: imageUrls };
+    }
+
+    return { images: [] };
   };
 
   return {

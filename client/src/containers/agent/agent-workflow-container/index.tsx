@@ -9,6 +9,7 @@ import {
   Divider,
   Frame,
   InlineStack,
+  BlockStack,
 } from "@shopify/polaris";
 import { AgentStreamingInterface } from "../agent-streaming-interface";
 import "./agent-workflow-container.module.css";
@@ -32,8 +33,8 @@ interface WorkflowStep {
 }
 
 const DEFAULT_DATA = {
-  prompt: "Thêm bé gái vào trong ảnh",
-  images: ["https://s3.awe7.com/hai-imagegen/reference_medlycb55ua6.jpg"],
+  prompt: "thay ảnh khác và xóa logo",
+  images: ["https://s3.awe7.com/hai-imagegen/reference_mefxrsio1251ih.jpg"],
   preferences: {
     quality: "high",
   },
@@ -90,8 +91,8 @@ export function AgentWorkflowContainer() {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
 
-      console.log('🚀 Starting streaming request to server...');
-      
+      console.log("🚀 Starting streaming request to server...");
+
       // Start Server-Sent Events streaming with POST request
       const response = await fetch(
         "http://localhost:4001/api/v1/data/agent/stream",
@@ -110,8 +111,8 @@ export function AgentWorkflowContainer() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      console.log('✅ Got response from server, starting to read stream...');
-      
+      console.log("✅ Got response from server, starting to read stream...");
+
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
 
@@ -141,7 +142,10 @@ export function AgentWorkflowContainer() {
                 const jsonStr = line.substring(6); // Remove 'data: ' prefix
                 const streamingEvent: StreamingEvent = JSON.parse(jsonStr);
                 console.log("Received streaming event:", streamingEvent);
-                console.log("Available step IDs:", WORKFLOW_STEPS.map(s => s.id));
+                console.log(
+                  "Available step IDs:",
+                  WORKFLOW_STEPS.map((s) => s.id)
+                );
 
                 setEvents((prev) => [...prev, streamingEvent]);
                 setProgress(streamingEvent.progress || 0);
@@ -150,7 +154,9 @@ export function AgentWorkflowContainer() {
                 setSteps((prev) => {
                   const updated = prev.map((step) => {
                     if (step.id === streamingEvent.step) {
-                      console.log(`🎯 Matching step found: ${step.id} -> ${streamingEvent.type}`);
+                      console.log(
+                        `🎯 Matching step found: ${step.id} -> ${streamingEvent.type}`
+                      );
                       if (streamingEvent.type === "step_start") {
                         return {
                           ...step,
@@ -168,12 +174,17 @@ export function AgentWorkflowContainer() {
                     }
                     return step;
                   });
-                  
-                  console.log(`📊 Step statuses after update:`, updated.map(s => `${s.id}: ${s.status}`));
+
+                  console.log(
+                    `📊 Step statuses after update:`,
+                    updated.map((s) => `${s.id}: ${s.status}`)
+                  );
                   return updated;
                 });
-                
-                console.log(`📊 Updated step ${streamingEvent.step} to ${streamingEvent.type}`);
+
+                console.log(
+                  `📊 Updated step ${streamingEvent.step} to ${streamingEvent.type}`
+                );
 
                 // Handle workflow completion
                 if (streamingEvent.type === "workflow_complete") {
@@ -212,19 +223,18 @@ export function AgentWorkflowContainer() {
     <Frame>
       <Box padding="600">
         <InlineStack>
-          {/* Header */}
           <Card>
             <Box padding="400">
-              <InlineStack>
-                <InlineStack>
+              <BlockStack gap="200">
+                <BlockStack>
                   <Text as="h1" variant="headingLg">
                     AI Agent Workflow
                   </Text>
                   <Text as="span" variant="bodyMd" tone="subdued">
                     Advanced image generation with multi-step AI analysis
                   </Text>
-                </InlineStack>
-                <InlineStack>
+                </BlockStack>
+                <BlockStack>
                   <Button
                     variant="primary"
                     onClick={startWorkflow}
@@ -234,8 +244,8 @@ export function AgentWorkflowContainer() {
                     {isRunning ? "Running..." : "Start Workflow"}
                   </Button>
                   {isRunning && <Button onClick={stopWorkflow}>Stop</Button>}
-                </InlineStack>
-              </InlineStack>
+                </BlockStack>
+              </BlockStack>
             </Box>
           </Card>
 
@@ -243,7 +253,7 @@ export function AgentWorkflowContainer() {
           {isRunning && (
             <Card>
               <Box padding="400">
-                <InlineStack>
+                <BlockStack>
                   <InlineStack>
                     <Text as="h2" variant="headingMd">
                       Progress
@@ -257,7 +267,7 @@ export function AgentWorkflowContainer() {
                     size="small"
                     tone="success"
                   />
-                </InlineStack>
+                </BlockStack>
               </Box>
             </Card>
           )}
@@ -265,14 +275,14 @@ export function AgentWorkflowContainer() {
           {/* Workflow Steps */}
           <Card>
             <Box padding="400">
-              <InlineStack>
+              <BlockStack>
                 <Text as="h2" variant="headingMd">
                   Workflow Steps
                 </Text>
                 <Divider />
                 {steps.map((step, index) => (
                   <Box key={step.id}>
-                    <InlineStack>
+                    <BlockStack>
                       <InlineStack>
                         <Box
                           padding="100"
@@ -284,7 +294,7 @@ export function AgentWorkflowContainer() {
                             {index + 1}
                           </Text>
                         </Box>
-                        <InlineStack>
+                        <BlockStack gap="200">
                           <Text
                             as="span"
                             variant="bodySm"
@@ -295,7 +305,7 @@ export function AgentWorkflowContainer() {
                           <Text as="span" variant="bodyXs" tone="subdued">
                             {step.description}
                           </Text>
-                        </InlineStack>
+                        </BlockStack>
                       </InlineStack>
                       <Badge>
                         {step.status === "pending"
@@ -306,11 +316,11 @@ export function AgentWorkflowContainer() {
                           ? "Completed"
                           : "Error"}
                       </Badge>
-                    </InlineStack>
+                    </BlockStack>
                     {index < steps.length - 1 && <Divider />}
                   </Box>
                 ))}
-              </InlineStack>
+              </BlockStack>
             </Box>
           </Card>
 

@@ -19,9 +19,10 @@ function App() {
       setFormat("generate");
     } else if (pathname.includes("imagedit")) {
       setFormat("edit");
-    } else if (pathname.includes("agent")) {
-      setFormat("agent");
     }
+    // else if (pathname.includes("agent")) {
+    //   setFormat("agent");
+    // }
   }, [pathname]);
 
   return (

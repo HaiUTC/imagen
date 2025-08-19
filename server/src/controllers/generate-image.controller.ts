@@ -6,9 +6,10 @@ import { uid } from '~/applications/utils/uid';
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { imagenRepository } from '~/frame-works/database/repositories/imagen.repository';
 import { s3Service } from '~/infrastructures/services/s3.service';
+import { StreamingEvent } from '~/applications/events/streaming-event.class';
 
-const generateImage = async (input: GenerateImagePort) => {
-  const { images, taskId, id: imagenId } = await generateImageFlow(input);
+const generateImage = async (input: GenerateImagePort, onEvent?: (event: StreamingEvent) => void) => {
+  const { images, taskId, id: imagenId } = await generateImageFlow(input, onEvent);
   const imagePublicUrls: string[] = [];
 
   if (Array.isArray(images)) {
@@ -83,14 +84,47 @@ const downloadImageGenerated = async ({ option, id }: { option: string; id: stri
   const currentImagen = await imagenRepository.findOne({ taskId: id }, { _id: 1, imagens: 1 });
 
   if (!currentImagen || !currentImagen.imagens?.[0]) {
-    return [];
+    return { images: [] };
   }
 
-  return await splitImageFlow(currentImagen.imagens[0]);
+  const images = await splitImageFlow(currentImagen.imagens[0]);
+
+  await imagenRepository.update(id, images);
+
+  return { images };
+};
+
+const generateImageStreaming = async (input: GenerateImagePort, onEvent: (event: StreamingEvent) => void) => {
+  try {
+    const { images, taskId, id: imagenId } = await generateImageFlow(input, onEvent);
+    const imagePublicUrls: string[] = [];
+
+    if (Array.isArray(images)) {
+      await Promise.all(
+        images.map(async item => {
+          const uniqueId = uid('generate_');
+          const imagePublicUrl = await s3Service.uploadImage(item.value, 'url', uniqueId);
+          imagePublicUrls.push(imagePublicUrl);
+        }),
+      );
+    }
+
+    await imagenRepository.updateOne(imagenId as string, {
+      taskId: taskId || '',
+      imagens: imagePublicUrls,
+      status: 'SUCCESS',
+    });
+
+    return { images: imagePublicUrls, taskId, id: imagenId as string };
+  } catch (error) {
+    console.error('Generate image streaming error:', error);
+    throw error;
+  }
 };
 
 export const GenerateImageService = {
   generateImage,
+  generateImageStreaming,
   editImage,
   downloadImageGenerated,
 };

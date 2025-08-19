@@ -32,7 +32,6 @@ VISION ANALYSIS RESULTS:
 
 MODEL SELECTION CONTEXT:
 - Midjourney: Best for detailed images, product photography, combining multiple images, complex compositions
-- Imagen: Best for general purpose images, simple requests, fast generation
 
 Create a strategic approach that includes:
 1. Approach: Overall creative approach and methodology (consider complexity level)
