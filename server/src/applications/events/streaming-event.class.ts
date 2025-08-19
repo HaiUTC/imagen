@@ -1,6 +1,6 @@
 export type StreamingEventType = 'start' | 'complete' | 'progress';
 
-export type StreamingStep = 'analytic_image' | 'magic_processing' | 'generate_image';
+export type StreamingStep = 'analytic_request' | 'magic_processing' | 'generate_image';
 
 export interface StreamingEventData {
   type: StreamingEventType;
@@ -12,10 +12,10 @@ export interface StreamingEventData {
 
 export class StreamingEvent {
   private static readonly STEP_MESSAGES: Record<StreamingStep, Record<StreamingEventType, string>> = {
-    analytic_image: {
-      start: 'analytic_image',
-      complete: 'analytic_image',
-      progress: 'analytic_image',
+    analytic_request: {
+      start: 'analytic_request',
+      complete: 'analytic_request',
+      progress: 'analytic_request',
     },
     magic_processing: {
       start: 'magic_processing',

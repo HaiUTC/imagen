@@ -31,14 +31,15 @@ interface EditValue {
   image?: File[];
 }
 
+export type StreamingStep =
+  | "analytic_request"
+  | "magic_processing"
+  | "generate_image"
+  | "workflow";
+
 export interface StreamingStatus {
-  step: "analytic_image" | "magic_processing" | "generate_image" | "workflow";
-  type:
-    | "step_start"
-    | "step_complete"
-    | "step_progress"
-    | "workflow_complete"
-    | "workflow_error";
+  step: StreamingStep;
+  type: "start" | "complete" | "progress";
   progress: number;
   message?: string;
   data?: any;

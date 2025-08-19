@@ -3,14 +3,19 @@ import { ImagenPreviewAnimation } from "../imagen-preview-animation";
 import { EmptyImagePreview } from "./empty";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useImagenStore } from "../../../../store/imagen.store";
+import {
+  useImagenStore,
+  type StreamingStatus,
+} from "../../../../store/imagen.store";
 
 interface ImageGenPreviewProps {
+  streamingStatus: StreamingStatus | null;
   images?: string[];
   loading?: boolean;
 }
 
 export const ImageGenPreview: React.FC<ImageGenPreviewProps> = ({
+  streamingStatus,
   images,
   loading,
 }) => {
@@ -56,7 +61,12 @@ export const ImageGenPreview: React.FC<ImageGenPreviewProps> = ({
                 style={{ cursor: loading ? "default" : "pointer" }}
               />
 
-              {loading && <ImagenPreviewAnimation autoStep={true} />}
+              {loading && (
+                <ImagenPreviewAnimation
+                  step={streamingStatus?.step || "analytic_request"}
+                  progress={streamingStatus?.progress || 0}
+                />
+              )}
             </div>
             <div className={styles.gallery}>
               {images.length > 1 &&

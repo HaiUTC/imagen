@@ -35,8 +35,6 @@ export const generateImageFlow = async () => {
       let finalResult: any = null;
 
       await imagenService.generateImageStreaming(formData, (event) => {
-        console.log("Streaming event:", event);
-
         if (event.type === "final_result") {
           finalResult = event;
           return;
@@ -52,7 +50,7 @@ export const generateImageFlow = async () => {
 
         setStreamingStatus(streamingStatus);
 
-        if (event.type === "workflow_complete" && event.data) {
+        if (event.type === "complete" && event.data) {
           setTaskIdGenerated(event.data.taskId || "");
           setGeneratedImages("generate", {
             images: event.data.images || [],
@@ -85,13 +83,7 @@ export const generateImageFlow = async () => {
     }
   } catch (error) {
     console.error("Error in generateImageFlow:", error);
-    setStreamingStatus({
-      step: "workflow",
-      type: "workflow_error",
-      progress: 0,
-      message:
-        error instanceof Error ? error.message : "Unknown error occurred",
-    });
+
     throw error;
   } finally {
     setLoadingGenerate(false);

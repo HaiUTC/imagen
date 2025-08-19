@@ -1,4 +1,3 @@
-import { downloadImageGeneratedFlow } from '~/applications/flow/download-image.flow';
 import { editImageFlow } from '~/applications/flow/edit-image.flow';
 import { generateImageFlow } from '~/applications/flow/generate-image.flow';
 import { splitImageFlow } from '~/applications/flow/split-image.flow';
@@ -54,31 +53,6 @@ const editImage = async (prompt: string, images: File[]) => {
 
   return { images: imagePublicUrls, taskId, id: imagenId as string };
 };
-
-// Old version, download via scale from Midjourney
-// const downloadImageGenerated = async ({ option, id }: { option: string; id: string }) => {
-//   const imagePublicUrls: string[] = [];
-
-//   const images = await downloadImageGeneratedFlow(option, id);
-
-//   if (Array.isArray(images)) {
-//     await Promise.all(
-//       images.map(async item => {
-//         if (item) {
-//           const uniqueId = uid();
-//           const imagePublicUrl = await s3Service.uploadImage(item, 'url', uniqueId);
-//           imagePublicUrls.push(imagePublicUrl);
-//         }
-//       }),
-//     );
-//   }
-
-//   await imagenRepository.update(id, imagePublicUrls);
-
-//   return { images: imagePublicUrls };
-// };
-
-// New version, download via split image
 
 const downloadImageGenerated = async ({ option, id }: { option: string; id: string }) => {
   const currentImagen = await imagenRepository.findOne({ taskId: id }, { _id: 1, imagens: 1 });

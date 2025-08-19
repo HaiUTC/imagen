@@ -1,47 +1,19 @@
-import { useState, useEffect } from "react";
 import styles from "./imagen-preview-animation.module.css";
+import type { StreamingStep } from "../../../../store/imagen.store";
 
 interface ImagenPreviewAnimationProps {
-  step?: "analytic_request" | "magic_processing" | "generate_image";
-  autoStep?: boolean;
+  step?: StreamingStep;
+  progress?: number;
 }
 
 export const ImagenPreviewAnimation: React.FC<ImagenPreviewAnimationProps> = ({
   step,
-  autoStep = false,
+  progress,
 }) => {
-  const steps: Array<
-    "analytic_request" | "magic_processing" | "generate_image"
-  > = ["analytic_request", "magic_processing", "generate_image"];
-
-  const [currentStep, setCurrentStep] = useState<
-    "analytic_request" | "magic_processing" | "generate_image"
-  >(step || steps[0]);
-
-  useEffect(() => {
-    if (autoStep) {
-      const interval = setInterval(() => {
-        setCurrentStep((prev) => {
-          const currentIndex = steps.indexOf(prev);
-          const nextIndex = (currentIndex + 1) % steps.length;
-          return steps[nextIndex];
-        });
-      }, 5000);
-
-      return () => clearInterval(interval);
-    }
-  }, [autoStep]);
-
-  useEffect(() => {
-    if (step) {
-      setCurrentStep(step);
-    }
-  }, [step]);
-
-  const containerClass = `${styles.container} ${styles[`step_${currentStep}`]}`;
+  const containerClass = `${styles.container} ${styles[`step_${step}`]}`;
 
   return (
-    <div className={containerClass} key={currentStep}>
+    <div className={containerClass} key={step}>
       <video
         src="/loading.webm"
         autoPlay
@@ -49,19 +21,19 @@ export const ImagenPreviewAnimation: React.FC<ImagenPreviewAnimationProps> = ({
         muted
         className={styles.flying_icon}
       />
-      {currentStep === "analytic_request" && (
+      {step === "analytic_request" && (
         <span className={`${styles.flying_icon_text} ${styles.text_analytic}`}>
           Analytic request
         </span>
       )}
-      {currentStep === "magic_processing" && (
+      {step === "magic_processing" && (
         <span className={`${styles.flying_icon_text} ${styles.text_magic}`}>
           Magic processing
         </span>
       )}
-      {currentStep === "generate_image" && (
+      {step === "generate_image" && (
         <span className={`${styles.flying_icon_text} ${styles.text_generate}`}>
-          Generating image 0%
+          {progress ? `Completed ${progress}%` : "Generating image"}
         </span>
       )}
     </div>

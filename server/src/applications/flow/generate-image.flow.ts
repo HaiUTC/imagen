@@ -18,7 +18,7 @@ export const generateImageFlow = async (input: GenerateImagePort, onEvent?: (eve
 
     if (images && images.length) {
       // Step 1: Analytic Image (Upload to S3 and analyze perspective)
-      emitEvent(StreamingEvent.stepStart('analytic_image'));
+      emitEvent(StreamingEvent.stepStart('analytic_request'));
 
       const imageUploadS3s = await Promise.all(
         images.map(async image => {
@@ -73,8 +73,9 @@ export const generateImageFlow = async (input: GenerateImagePort, onEvent?: (eve
 
       emitEvent(
         StreamingEvent.stepComplete('generate_image', 100, {
-          images: imagesGenerated,
+          images: imagesGenerated.map(image => image.value),
           taskId,
+          id: imagen._id as string,
         }),
       );
 

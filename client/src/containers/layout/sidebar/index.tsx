@@ -41,12 +41,12 @@ export const ImagenSideBar: React.FC = () => {
             navigate("/imagedit");
           }}
         />
-        <OptionImagenDetail
+        {/* <OptionImagenDetail
           icon="resize"
           label="Agent"
           isActive={false}
           onClick={() => {}}
-        />
+        /> */}
         {/* <OptionImagenDetail
           icon="remove-background"
           label="Remove background"

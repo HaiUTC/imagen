@@ -4,7 +4,8 @@ import { ImageGenPreviewActions } from "./imagen-preview-actions";
 import { useImagenStore } from "../../../store/imagen.store";
 
 export const ImageGenPreviewContainer: React.FC = () => {
-  const { data, loadingGenerate, format, generatedImages } = useImagenStore();
+  const { data, loadingGenerate, format, generatedImages, streamingStatus } =
+    useImagenStore();
 
   return (
     <Box
@@ -16,6 +17,7 @@ export const ImageGenPreviewContainer: React.FC = () => {
       <ImageGenPreviewActions />
       <Box position="relative">
         <ImageGenPreview
+          streamingStatus={streamingStatus}
           images={
             format
               ? generatedImages[format]?.images?.length
