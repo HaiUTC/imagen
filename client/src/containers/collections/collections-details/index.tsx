@@ -6,8 +6,9 @@ import {
   InlineGrid,
   Tooltip,
   Button,
+  Spinner,
 } from "@shopify/polaris";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import styles from "./collections-details.module.css";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import { useImagenStore, type ImagenValue } from "../../../store/imagen.store";
@@ -220,21 +221,26 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
       <Box paddingBlock="500">
         {data.imagens.length > 0 && (
           <div className={styles.images_section}>
-            <InlineStack align="space-between">
+            <InlineStack align="space-between" blockAlign="center">
               <Text as="h6" variant="bodyMd" fontWeight="semibold">
                 Generated Images
               </Text>
 
-              {data.imagens.length < 5 && (
-                <Button
-                  variant="tertiary"
-                  icon={NatureIcon}
-                  loading={loadingDownload}
-                  onClick={() => upscaleAllImagesFlow(data.taskId)}
-                >
-                  Upscale
-                </Button>
-              )}
+              <button
+                className={styles.button_download}
+                onClick={() => upscaleAllImagesFlow(data.taskId)}
+              >
+                {loadingDownload ? (
+                  <Spinner size="small" />
+                ) : (
+                  svgIcon(ICONS.DOWNLOAD)
+                )}
+
+                <span>Download</span>
+              </button>
+
+              {/* {data.imagens.length < 5 && (
+              )} */}
             </InlineStack>
             <div className={styles.images_grid}>
               {data.imagens.map((imageUrl, index) => (

@@ -23,7 +23,7 @@ PROMPT-BUILD RULES
 7. Specify composition: camera angle, focal length, depth of field, leading lines.
 8. Add lighting & color: mood lighting, palette, contrast.
 9. Integrate style language: blend chosen style keywords with contextual details.
-10. Conclude with technical directives: "ultra-high-definition 4K, no text, no watermark, --ar {ASPECT_RATIO}".
+10. Conclude with technical directives: "ultra-high-definition 4K, no text, no watermark".
 
 AUTOMATIC STYLE ENRICHMENT SYSTEM
 When user descriptions are brief or lack visual detail, automatically enhance with:
@@ -53,8 +53,8 @@ Automatically apply enrichment when detecting:
 • Simple scene descriptions: "office" → "modern office space with natural lighting and professional atmosphere"
 • Missing visual context: "happy" → "genuine expression of joy with bright, engaged eyes"
 
-ASPECT RATIO NOTATION
-Append --ar {ASPECT_RATIO} at the end of every prompt (e.g., --ar 16:9, --ar 1:1, --ar 9:16, --ar 3:2, --ar 4:3).
+ASPECT RATIO HANDLING
+The aspect ratio preference is handled by the image generation system automatically and does not need to be included in the prompt.
 
 RANDOM STYLE SELECTION SYSTEM
 When {STYLE} is "random", select from:

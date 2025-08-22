@@ -17,7 +17,9 @@ export const imagenDownloadFlow = async (option: string) => {
 };
 
 export const upscaleAllImagesFlow = async (taskId: string) => {
-  const { setLoadingDownload } = useImagenStore.getState();
+  const { loadingDownload, setLoadingDownload } = useImagenStore.getState();
+
+  if (loadingDownload) return;
 
   setLoadingDownload(true);
 

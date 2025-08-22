@@ -4,7 +4,6 @@ import { ChatCompletionMessageParam } from 'openai/resources/chat/completions';
 interface ChatOptions {
   model?: string;
   temperature?: number;
-  maxTokens?: number;
   apiKey?: string;
   baseURL?: string;
 }
@@ -21,7 +20,6 @@ const createChatService = (options?: ChatOptions) => {
       model: overrideOptions?.model || options?.model || 'gpt-4o-2024-08-06',
       messages,
       temperature: overrideOptions?.temperature ?? options?.temperature ?? 0.7,
-      max_tokens: overrideOptions?.maxTokens || options?.maxTokens || 1200,
     });
 
     return response.choices[0].message.content;
@@ -32,7 +30,6 @@ const createChatService = (options?: ChatOptions) => {
       model: process.env.OPENAI_MODEL!,
       messages,
       temperature: overrideOptions?.temperature ?? 0.3,
-      max_tokens: overrideOptions?.maxTokens || 1000,
     });
 
     return response.choices[0].message.content;

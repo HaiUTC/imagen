@@ -189,12 +189,7 @@ export const createImagenService = () => {
   };
 
   // Generate ảnh từ prompt và image reference
-  const generateImagenMixed = async (
-    prompt: string,
-    aspect_ratio: string = '1:1',
-    imageReference: string[],
-    onEvent?: (process: number) => void,
-  ) => {
+  const generateImagenMixed = async (prompt: string, imageReference: string[], onEvent?: (process: number) => void) => {
     try {
       // Initialize cache if not already done
       initializeApiKeyCache();
@@ -212,7 +207,7 @@ export const createImagenService = () => {
           Authorization: `Bearer ${selectedApiKey}`,
         },
         body: JSON.stringify({
-          prompt: `${imageReference.join(' ')} ${prompt} --aspect ${aspect_ratio} --iw 2 `,
+          prompt: `${imageReference.join(' ')} ${prompt}`,
           botType: 'MID_JOURNEY',
         }),
       }).then(async res => await res.json());

@@ -11,7 +11,8 @@ interface CollectionGeneratingFloatProps {}
 export const CollectionGeneratingFloat: React.FC<
   CollectionGeneratingFloatProps
 > = () => {
-  const { loadingGenerate, format, generatedImages } = useImagenStore();
+  const { loadingGenerate, format, generatedImages, streamingStatus } =
+    useImagenStore();
   const [isExpanded, setIsExpanded] = useState(false);
   const [displayImages, setDisplayImages] = useState<string[]>([]);
   const [isVisible, setIsVisible] = useState(true);
@@ -102,7 +103,13 @@ export const CollectionGeneratingFloat: React.FC<
           </div>
           <span className={styles.heading_text}>
             {loadingGenerate
-              ? "Waiting in the slow queue..."
+              ? streamingStatus?.step === "analytic_request"
+                ? "Analytic request"
+                : streamingStatus?.step === "magic_processing"
+                ? "Magic processing"
+                : streamingStatus?.step === "generate_image"
+                ? `Generating image ${streamingStatus?.progress || 0}%`
+                : "Waiting in the slow queue..."
               : displayImages.length > 0
               ? "Generation complete!"
               : "Ready to generate"}

@@ -195,3 +195,26 @@
   height: 100%;
   object-fit: cover;
 }
+
+.button_download {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.button_download :global(.Polaris-Spinner--sizeSmall svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.button_download:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
+}

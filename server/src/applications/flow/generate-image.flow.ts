@@ -63,23 +63,29 @@ export const generateImageFlow = async (input: GenerateImagePort, onEvent?: (eve
       emitEvent(StreamingEvent.stepStart('generate_image'));
 
       const { images: imagesGenerated, taskId } = await imagenService.generateImagenMixed(
-        userMagicPrompt,
-        aspect_ratio,
+        `${userMagicPrompt} --ar ${aspect_ratio}`,
         imageUploadS3s,
         (process: number) => {
           emitEvent(StreamingEvent.stepProgress('generate_image', process));
         },
       );
 
+      const imagesGeneratedUploadS3 = await Promise.all(
+        imagesGenerated.map(async image => {
+          const imageGeneratedUploadS3 = await s3Service.uploadImage(image.value, 'url', uid('reference_'));
+          return imageGeneratedUploadS3;
+        }),
+      );
+
       emitEvent(
         StreamingEvent.stepComplete('generate_image', 100, {
-          images: imagesGenerated.map(image => image.value),
+          images: imagesGeneratedUploadS3,
           taskId,
           id: imagen._id as string,
         }),
       );
 
-      return { images: imagesGenerated, reference: imageUploadS3s, taskId, id: imagen._id as string };
+      return { images: imagesGeneratedUploadS3, reference: imageUploadS3s, taskId, id: imagen._id as string };
     } else {
       // Simple flow without streaming for text-only prompts
       emitEvent(StreamingEvent.stepStart('magic_processing', 0));

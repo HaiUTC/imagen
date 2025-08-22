@@ -91,8 +91,10 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   isStreamingEnabled: true,
   generatedImages: {
     generate: {
-      images: [],
-      id: "",
+      images: [
+        "https://mj-cn.scdn.app/files/attachments/merges/2025/08/22/merged_115479e6cee3492a861c3d0964ddc4cd.webp",
+      ],
+      id: "68a8153f128d444873846a4b",
       taskId: "",
     },
     edit: {

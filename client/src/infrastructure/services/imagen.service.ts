@@ -13,7 +13,10 @@ const createImagenService = (): ImagenServicePort => {
 
       return response.json();
     },
-    generateImageStreaming: async (data: FormData, onEvent: (event: any) => void) => {
+    generateImageStreaming: async (
+      data: FormData,
+      onEvent: (event: any) => void
+    ) => {
       const response = await fetch(
         `${import.meta.env.VITE_APP_BE_CDN}/generative/image/streaming`,
         {
@@ -23,33 +26,33 @@ const createImagenService = (): ImagenServicePort => {
       );
 
       if (!response.body) {
-        throw new Error('Streaming not supported');
+        throw new Error("Streaming not supported");
       }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
-      let buffer = '';
-      
+      let buffer = "";
+
       try {
         while (true) {
           const { done, value } = await reader.read();
-          
+
           if (done) break;
-          
+
           buffer += decoder.decode(value, { stream: true });
-          
+
           // Process complete lines
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ''; // Keep incomplete line in buffer
-          
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
+            if (line.startsWith("data: ")) {
               try {
                 const data = JSON.parse(line.substring(6));
                 onEvent(data);
               } catch (e) {
-                console.warn('Failed to parse streaming data:', e);
+                console.warn("Failed to parse streaming data:", e);
               }
             }
           }

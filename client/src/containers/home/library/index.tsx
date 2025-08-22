@@ -25,6 +25,7 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
     setCurrentTemplateId,
     paginationLoading,
   } = useTemplateStore();
+
   const [imageHeights, setImageHeights] = useState<Record<string, number>>({});
   const masonryRef = useRef<HTMLDivElement>(null);
 
