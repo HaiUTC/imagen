@@ -346,7 +346,7 @@ export const createImagenService = () => {
   const poolImageTask = async (taskId: string, apiKey: string, onEvent?: (progress: number) => void) => {
     let status = 'IN_PROGRESS';
     let failCount = 0;
-    const maxFailures = 5;
+    const maxFailures = 10;
 
     const imageUrls: Array<{ value: string; type: 'base64' | 'url' }> = [];
 
