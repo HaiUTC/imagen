@@ -350,6 +350,8 @@ export const createImagenService = () => {
 
   const poolImageTask = async (taskId: string, apiKey: string, onEvent?: (progress: number) => void) => {
     let status = 'IN_PROGRESS';
+    let failCount = 0;
+    const maxFailures = 5;
 
     const imageUrls: Array<{ value: string; type: 'base64' | 'url' }> = [];
 
@@ -359,23 +361,33 @@ export const createImagenService = () => {
       while (status === 'IN_PROGRESS') {
         await new Promise(resolve => setTimeout(resolve, 5000));
 
-        const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${taskId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`,
-          },
-        }).then(res => res.json());
+        try {
+          const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${taskId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+            },
+          }).then(res => res.json());
 
-        status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
+          status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
 
-        const progress = Number.parseInt(statusCheck.progress) || 0;
+          const progress = Number.parseInt(statusCheck.progress) || 0;
 
-        if (progress && onEvent) {
-          onEvent(progress);
-        }
-        if (status === 'SUCCESS') {
-          imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
+          if (progress && onEvent) {
+            onEvent(progress);
+          }
+          if (status === 'SUCCESS') {
+            imageUrls.push({ value: statusCheck.task_result.images[0].url, type: 'url' });
+          }
+        } catch (error) {
+          failCount++;
+          if (failCount >= maxFailures) {
+            throw new Error(
+              `Failed to pool image task after ${maxFailures} attempts: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            );
+          }
+          // Continue polling on failure
         }
       }
 
