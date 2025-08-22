@@ -179,13 +179,13 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
             <div ref={masonryRef} className={styles.masonry}>
               {paginatedImages.data
                 .filter((imagen) => imagen.imagens && imagen.imagens.length > 0)
-                .map((imagen, index) => {
+                .map((imagen) => {
                   const imageUrl = imagen.imagens[imagen.imagens.length - 1]; // Get last image
                   const gridRowSpan = imageHeights[imageUrl] || 20; // Default span
 
                   return (
                     <div
-                      key={`template-${imagen._id}-${index}`}
+                      key={imagen._id}
                       className={styles.masonryItem}
                       style={{
                         gridRowEnd: `span ${gridRowSpan}`,

@@ -4,8 +4,10 @@ import { TemplateDataValue, TemplateValueFully } from '~/domains/entities/templa
 import { PaginationEntity } from '~/domains/entities/pagination.entity';
 
 // Helper functions for pagination
-const buildMatchConditions = async (templateId?: string, beforeId?: string) => {
-  const conditions: any = {};
+const buildMatchConditions = async (templateId?: string, beforeId?: string, addConditions?: any) => {
+  const conditions: any = {
+    ...(addConditions || {}),
+  };
 
   if (templateId) {
     const template = (await TemplateModel.findById(templateId)) as TemplateDataValue;
@@ -118,7 +120,7 @@ const createTemplateRepository = () => ({
     const LIMIT = 20;
     const EMPTY_RESULT = { data: [], count: 0, beforeId: null, hasNext: false, hasPrevious: false };
 
-    const matchConditions = await buildMatchConditions(templateId, beforeId);
+    const matchConditions = await buildMatchConditions(templateId, beforeId, { imagens: { $exists: true, $gt: [] } });
     if (!matchConditions) {
       return EMPTY_RESULT;
     }

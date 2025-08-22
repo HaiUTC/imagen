@@ -161,7 +161,7 @@ export const GenerateField: React.FC<GenerateFieldProps> = ({
         <Box paddingBlockStart="1000">
           <Text
             as="h2"
-            variant="heading3xl"
+            variant="heading2xl"
             fontWeight="medium"
             alignment="center"
           >

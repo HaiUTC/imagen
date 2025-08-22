@@ -387,7 +387,6 @@ export const createImagenService = () => {
               `Failed to pool image task after ${maxFailures} attempts: ${error instanceof Error ? error.message : 'Unknown error'}`,
             );
           }
-          // Continue polling on failure
         }
       }
 
