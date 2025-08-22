@@ -21,7 +21,16 @@ import multer from 'multer';
 {{else}}
 const multer = require('multer');
 {{/if}}
-const upload = multer({{{json multerOpts}}});
+const upload = multer({
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB
+    files: 10
+  },
+  fileFilter: (req, file, cb) => {
+    // Add file type validation if needed
+    cb(null, true);
+  }
+});
 {{/if}}
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
