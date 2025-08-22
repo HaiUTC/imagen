@@ -38,6 +38,7 @@ export interface EnhancedPrompt {
   styleModifiers: string[];
   technicalParams: Record<string, any>;
   negativePrompt?: string;
+  variantTheme?: string;
 }
 
 export interface ProviderOption {

@@ -6,9 +6,9 @@ import Imagen from "./containers/imagen";
 import Layout from "./containers/layout";
 import ImagEdit from "./containers/imagedit";
 import CollectionsContainer from "./containers/collections";
-import Agent from "./containers/agent";
 import { useImagenStore } from "./store/imagen.store";
 import { useEffect } from "react";
+import Agent from "./containers/agent";
 
 function App() {
   const { setFormat } = useImagenStore.getState();
@@ -20,18 +20,15 @@ function App() {
     } else if (pathname.includes("imagedit")) {
       setFormat("edit");
     }
-    // else if (pathname.includes("agent")) {
-    //   setFormat("agent");
-    // }
   }, [pathname]);
 
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/agent" element={<Agent />} />
         <Route path="/imagen" element={<Imagen />} />
         <Route path="/imagedit" element={<ImagEdit />} />
-        <Route path="/agent" element={<Agent />} />
         <Route path="/i/:id" element={<CollectionsContainer />} />
       </Route>
     </Routes>

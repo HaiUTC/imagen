@@ -13,6 +13,7 @@ export interface ImagenValue {
   taskId: string;
   imagens: string[];
   status: string;
+  agent?: boolean;
   data: {
     prompt?: string;
     aspectRatio?: string;

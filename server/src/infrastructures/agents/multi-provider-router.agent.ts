@@ -32,13 +32,7 @@ export class MultiProviderRouterAgent {
       {
         provider: 'midjourney',
         confidence: 100,
-        strengths: [
-          'detailed images',
-          'product photography',
-          'artistic style',
-          'high quality',
-          'creative interpretation'
-        ],
+        strengths: ['detailed images', 'product photography', 'artistic style', 'high quality', 'creative interpretation'],
         estimatedCost: 0.08,
         estimatedTime: 60,
       },
@@ -52,7 +46,7 @@ export class MultiProviderRouterAgent {
       if (provider !== 'midjourney') {
         throw new Error(`Provider ${provider} not supported. Only Midjourney is available.`);
       }
-
+      console.log('Working on Midjourney');
       return await this.generateWithMidjourney(enhancedPrompt, userInput);
     } catch (error) {
       console.error(`Generation failed with ${provider}:`, error);
@@ -70,13 +64,21 @@ export class MultiProviderRouterAgent {
     const startTime = Date.now();
 
     try {
-      const aspectRatio = enhancedPrompt.technicalParams.aspectRatio || '1:1';
-
+      const aspectRatio = userInput.preferences?.aspectRatio || '1:1';
       // Midjourney works best with reference images, use generateImagenMixed
       if (userInput.images && userInput.images.length > 0) {
+        if (userInput.images.length === 1) {
+          enhancedPrompt.optimizedPrompt = `${enhancedPrompt.optimizedPrompt} --oref ${userInput.images[0].url} --ow 300 --c 10 --raw --ar ${aspectRatio} --v 7`;
+          userInput.images = [];
+        } else {
+          enhancedPrompt.optimizedPrompt = `${enhancedPrompt.optimizedPrompt} --ar ${aspectRatio}`;
+          userInput.images = [];
+        }
+
+        console.log('Prompt: ', enhancedPrompt.optimizedPrompt);
+
         const { images, taskId } = await imagenService.generateImagenMixed(
           enhancedPrompt.optimizedPrompt,
-          aspectRatio,
           userInput.images.map(img => img.url),
         );
 
@@ -125,5 +127,4 @@ export class MultiProviderRouterAgent {
       };
     }
   }
-
 }

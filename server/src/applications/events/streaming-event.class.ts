@@ -68,7 +68,7 @@ export class StreamingEvent {
   /**
    * Create a step progress event (only used during image generation with process)
    */
-  static stepProgress(step: StreamingStep, progress: number, data?: any): StreamingEvent {
+  static stepProgress(step: StreamingStep, progress: number): StreamingEvent {
     return new StreamingEvent('progress', step, progress);
   }
 
