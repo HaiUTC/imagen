@@ -16,11 +16,12 @@ app.use(express.static('public'));
 app.use(
   urlencoded({
     extended: true,
+    limit: '50mb',
   }),
 );
 
 app.disable('x-powered-by');
-app.use(json({ limit: '10mb' }));
+app.use(json({ limit: '50mb' }));
 app.use(morgan('tiny'));
 app.use(cors());
 

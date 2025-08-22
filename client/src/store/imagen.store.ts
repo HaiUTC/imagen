@@ -48,8 +48,9 @@ export interface StreamingStatus {
 export interface ImagenStore {
   format: keyof ImagenValue;
   loadingGenerate: boolean;
-  taskIdGenerated: string;
   loadingDownload: boolean;
+  loadingUpscale: boolean;
+  taskIdGenerated: string;
   data: ImagenValue;
   errors: Record<string, string>;
   isDownloaded: boolean;
@@ -62,6 +63,7 @@ export interface ImagenStore {
   setLoadingDownload: (loadingDownload: boolean) => void;
   setErrors: (errors: Record<string, string>) => void;
   setIsDownloaded: (isDownloaded: boolean) => void;
+  setLoadingUpscale: (loadingUpscale: boolean) => void;
   onChangeDataValue: (
     format: keyof ImagenValue,
     key: string,
@@ -85,16 +87,15 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   loadingGenerate: false,
   taskIdGenerated: "",
   loadingDownload: false,
+  loadingUpscale: false,
   errors: {},
   isDownloaded: false,
   streamingStatus: null,
   isStreamingEnabled: true,
   generatedImages: {
     generate: {
-      images: [
-        "https://mj-cn.scdn.app/files/attachments/merges/2025/08/22/merged_115479e6cee3492a861c3d0964ddc4cd.webp",
-      ],
-      id: "68a8153f128d444873846a4b",
+      images: [],
+      id: "",
       taskId: "",
     },
     edit: {
@@ -128,6 +129,9 @@ export const useImagenStore = create<ImagenStore>((set) => ({
   },
   setLoadingDownload: (loadingDownload: boolean) => {
     set({ loadingDownload });
+  },
+  setLoadingUpscale: (loadingUpscale: boolean) => {
+    set({ loadingUpscale });
   },
   setErrors: (errors: Record<string, string>) => {
     set({ errors });

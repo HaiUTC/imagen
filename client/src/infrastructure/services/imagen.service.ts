@@ -1,4 +1,5 @@
 import type { ImagenServicePort } from "../../domain/ports/imagen-service.port";
+import { streamingResponse } from "../../libs/utils/streaming";
 
 const createImagenService = (): ImagenServicePort => {
   return {
@@ -22,6 +23,47 @@ const createImagenService = (): ImagenServicePort => {
         {
           method: "POST",
           body: data,
+        }
+      );
+
+      await streamingResponse(response.body, onEvent);
+    },
+    editImage: async (data: FormData) => {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BE_CDN}/generative/edit`,
+        {
+          method: "POST",
+          body: data,
+        }
+      );
+      return response.json();
+    },
+    downloadImageGenerated: async (data: { option: string; id: string }) => {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BE_CDN}/generative/image/download`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      return response.json();
+    },
+    upscaleImageStreaming: async (
+      id: string,
+      onEvent: (event: any) => void
+    ) => {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BE_CDN}/generative/upscale`,
+        {
+          method: "POST",
+          body: JSON.stringify({ id }),
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -60,30 +102,6 @@ const createImagenService = (): ImagenServicePort => {
       } finally {
         reader.releaseLock();
       }
-    },
-    editImage: async (data: FormData) => {
-      const response = await fetch(
-        `${import.meta.env.VITE_APP_BE_CDN}/generative/edit`,
-        {
-          method: "POST",
-          body: data,
-        }
-      );
-      return response.json();
-    },
-    downloadImageGenerated: async (data: { option: string; id: string }) => {
-      const response = await fetch(
-        `${import.meta.env.VITE_APP_BE_CDN}/generative/image/download`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-
-      return response.json();
     },
   };
 };

@@ -1,6 +1,7 @@
 import { editImageFlow } from '~/applications/flow/edit-image.flow';
 import { generateImageFlow } from '~/applications/flow/generate-image.flow';
-import { splitImageFlow } from '~/applications/flow/split-image.flow';
+import { splitImageFlow } from '~/applications/flow/download-image.flow';
+import { upscaleImageGeneratedFlow } from '~/applications/flow/upscale-image.flow';
 import { uid } from '~/applications/utils/uid';
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { imagenRepository } from '~/frame-works/database/repositories/imagen.repository';
@@ -96,9 +97,23 @@ const generateImageStreaming = async (input: GenerateImagePort, onEvent: (event:
   }
 };
 
+const upscaleImageStreaming = async (id: string, onEvent: (event: StreamingEvent) => void) => {
+  try {
+    const images = await upscaleImageGeneratedFlow(id, onEvent);
+
+    await imagenRepository.update(id, images);
+
+    return { images };
+  } catch (error) {
+    console.error('Upscale image streaming error:', error);
+    throw error;
+  }
+};
+
 export const GenerateImageService = {
   generateImage,
   generateImageStreaming,
   editImage,
   downloadImageGenerated,
+  upscaleImageStreaming,
 };

@@ -199,14 +199,13 @@
 .button_download {
   display: flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  border-radius: 8px;
   background-color: transparent;
   border: none;
   cursor: pointer;
+  padding: 4px;
   opacity: 0.8;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 12px;
 }
 
 .button_download :global(.Polaris-Spinner--sizeSmall svg) {
@@ -216,5 +215,6 @@
 
 .button_download:hover {
   opacity: 1;
+  color: rgba(48, 48, 48, 1);
   background-color: rgba(0, 0, 0, 0.05);
 }
