@@ -16,6 +16,7 @@ app.use(express.static('public'));
 app.use(
   urlencoded({
     extended: true,
+    limit: '10mb',
   }),
 );
 
