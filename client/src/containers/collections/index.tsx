@@ -10,6 +10,7 @@ import styles from "./collections.module.css";
 import { GenerateField } from "../home/generate-field";
 import { Box } from "@shopify/polaris";
 import { CollectionGeneratingFloat } from "./collection-generating-float";
+import { useImagenStore } from "../../store/imagen.store";
 
 interface CollectionsData {
   format: "generate" | "edit";
@@ -31,7 +32,7 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
   const navigate = useNavigate();
   const { id: imagenId } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const templateId = searchParams.get('templateId');
+  const templateId = searchParams.get("templateId");
   const { paginatedImages, paginationLoading } = useTemplateStore();
 
   const [selectedData, setSelectedData] = useState<CollectionsData | null>(
@@ -44,6 +45,7 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
   const mainImageRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef<boolean>(false);
   const dataLoadedRef = useRef<string>(""); // Track loaded templateId
+  const { clearData } = useImagenStore.getState();
 
   // Transform PaginatedImagen to CollectionsData
   const transformToCollectionsData = (
@@ -69,10 +71,12 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
     setImagePreviewSelected(collection.imagens[0]);
   };
 
+  useEffect(() => clearData, []);
+
   // Initialize data on component mount
   useEffect(() => {
     const currentKey = templateId || "explore";
-    
+
     // Only load if we haven't already loaded this templateId/explore mode
     if (dataLoadedRef.current !== currentKey) {
       const initializeData = async () => {
@@ -99,7 +103,9 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
     if (paginatedImages.data.length > 0 && !initializedRef.current) {
       // If we have an imagenId, try to find that specific imagen
       if (imagenId) {
-        const targetImagen = paginatedImages.data.find(img => img._id === imagenId);
+        const targetImagen = paginatedImages.data.find(
+          (img) => img._id === imagenId
+        );
         if (targetImagen) {
           const targetData = transformToCollectionsData(targetImagen);
           setSelectedData(targetData);
@@ -108,7 +114,9 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
           initializedRef.current = true;
         } else {
           // If specific imagen not found, fallback to first image
-          const firstImage = transformToCollectionsData(paginatedImages.data[0]);
+          const firstImage = transformToCollectionsData(
+            paginatedImages.data[0]
+          );
           setSelectedData(firstImage);
           setSelectedCollectionId(firstImage.taskId);
           initializedRef.current = true;
@@ -128,7 +136,7 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
     initializedRef.current = false;
     setSelectedData(null);
   }, [imagenId]);
-  
+
   // Reset data loaded ref when templateId changes
   useEffect(() => {
     dataLoadedRef.current = "";

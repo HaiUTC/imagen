@@ -21,7 +21,7 @@ app.use(
 );
 
 app.disable('x-powered-by');
-app.use(json({ limit: '10mb' }));
+app.use(json({ limit: '50mb' }));
 app.use(morgan('tiny'));
 app.use(cors());
 

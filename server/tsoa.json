@@ -19,5 +19,10 @@
       "tsoa": ["./node_modules/tsoa/dist"],
       "middlewareTemplate": "./tsoa-template.ts.hbs"
     }
+  },
+  "multerOpts": {
+    "limits": {
+      "fileSize": 52428800
+    }
   }
 }

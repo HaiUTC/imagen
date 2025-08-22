@@ -1,20 +1,19 @@
 import {
-  Text,
-  InlineStack,
-  Divider,
   Box,
+  Divider,
   InlineGrid,
-  Tooltip,
-  Button,
+  InlineStack,
   Spinner,
+  Text,
+  Tooltip,
 } from "@shopify/polaris";
-import { Fragment, useState } from "react";
-import styles from "./collections-details.module.css";
+import { useState } from "react";
+import { imagenDownloadFlow } from "../../../flow/imagen/imagen.dowload.flow";
+import { upscaleImageFlow } from "../../../flow/imagen/upscale-image.flow";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
-import { useImagenStore, type ImagenValue } from "../../../store/imagen.store";
 import { urlToFile } from "../../../libs/utils/url-2-file";
-import { NatureIcon } from "@shopify/polaris-icons";
-import { upscaleAllImagesFlow } from "../../../flow/imagen/imagen.dowload.flow";
+import { useImagenStore, type ImagenValue } from "../../../store/imagen.store";
+import styles from "./collections-details.module.css";
 
 interface CollectionsData {
   format: "generate" | "edit";
@@ -41,7 +40,14 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<number>(0);
-  const { loadingDownload, onChangeDataValue, setFormat } = useImagenStore();
+  const {
+    format,
+    loadingDownload,
+    loadingUpscale,
+    generatedImages,
+    onChangeDataValue,
+    setFormat,
+  } = useImagenStore();
 
   const handleCopyText = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -221,39 +227,55 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
       <Box paddingBlock="500">
         {data.imagens.length > 0 && (
           <div className={styles.images_section}>
-            <InlineStack align="space-between" blockAlign="center">
+            <InlineStack align="space-between" blockAlign="center" wrap={false}>
               <Text as="h6" variant="bodyMd" fontWeight="semibold">
-                Generated Images
+                Generated
               </Text>
 
-              <button
-                className={styles.button_download}
-                onClick={() => upscaleAllImagesFlow(data.taskId)}
-              >
-                {loadingDownload ? (
-                  <Spinner size="small" />
-                ) : (
-                  svgIcon(ICONS.DOWNLOAD)
-                )}
-
-                <span>Download</span>
-              </button>
+              <InlineStack wrap={false} gap="150">
+                <Tooltip content="Upscale" dismissOnMouseOut>
+                  <button
+                    className={styles.button_download}
+                    onClick={() => upscaleImageFlow(data.taskId)}
+                  >
+                    {loadingUpscale ? (
+                      <Spinner size="small" />
+                    ) : (
+                      svgIcon(ICONS.UPSCALE)
+                    )}
+                  </button>
+                </Tooltip>
+                <Tooltip content="Download" dismissOnMouseOut>
+                  <button
+                    className={styles.button_download}
+                    onClick={() => imagenDownloadFlow(data.taskId)}
+                  >
+                    {loadingDownload ? (
+                      <Spinner size="small" />
+                    ) : (
+                      svgIcon(ICONS.DOWNLOAD)
+                    )}
+                  </button>
+                </Tooltip>
+              </InlineStack>
 
               {/* {data.imagens.length < 5 && (
               )} */}
             </InlineStack>
             <div className={styles.images_grid}>
-              {data.imagens.map((imageUrl, index) => (
-                <div key={index} className={styles.grid_image_wrapper}>
-                  <img
-                    src={imageUrl}
-                    alt={`Generated ${index}`}
-                    loading="lazy"
-                    className={styles.grid_image}
-                    onClick={() => setImagePreviewSelected(imageUrl)}
-                  />
-                </div>
-              ))}
+              {[...data.imagens, ...generatedImages[format].images].map(
+                (imageUrl, index) => (
+                  <div key={index} className={styles.grid_image_wrapper}>
+                    <img
+                      src={imageUrl}
+                      alt={`Generated ${index}`}
+                      loading="lazy"
+                      className={styles.grid_image}
+                      onClick={() => setImagePreviewSelected(imageUrl)}
+                    />
+                  </div>
+                )
+              )}
             </div>
           </div>
         )}

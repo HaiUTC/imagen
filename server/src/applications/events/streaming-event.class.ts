@@ -1,6 +1,6 @@
 export type StreamingEventType = 'start' | 'complete' | 'progress';
 
-export type StreamingStep = 'analytic_request' | 'magic_processing' | 'generate_image';
+export type StreamingStep = 'analytic_request' | 'magic_processing' | 'generate_image' | 'upscale_image';
 
 export interface StreamingEventData {
   type: StreamingEventType;
@@ -26,6 +26,11 @@ export class StreamingEvent {
       start: 'generate_image',
       complete: 'generate_image',
       progress: 'generate_image',
+    },
+    upscale_image: {
+      start: 'upscale_image',
+      complete: 'upscale_image',
+      progress: 'upscale_image',
     },
   };
 

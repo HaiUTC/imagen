@@ -214,4 +214,58 @@ export class GenerativeController extends Controller {
       return { images: [], taskId: undefined, id: '' };
     }
   }
+
+  /**
+   * Upscale image with streaming updates
+   */
+  @Post('/upscale')
+  public async upscaleImageStreaming(@Request() req: RequestExpress & { res: ResponseExpress }): Promise<any> {
+    try {
+      const res = req.res;
+
+      // Set headers for Server-Sent Events
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control',
+      });
+
+      // Stream the upscale process
+      const result = await GenerateImageService.upscaleImageStreaming(req.body.id, (event: StreamingEvent) => {
+        res.write(`event: ${event.type}\n`);
+        res.write(`data: ${JSON.stringify(event.toJSON())}\n\n`);
+
+        if (res.flushHeaders) {
+          res.flushHeaders();
+        }
+      });
+
+      res.end();
+
+      return result;
+    } catch (error) {
+      console.log('Upscale image streaming error ====> ', error);
+      const res = req.res;
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error occurred',
+        });
+      } else {
+        res.write(`event: error\n`);
+        res.write(
+          `data: ${JSON.stringify({
+            type: 'error',
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error occurred',
+            timestamp: new Date().toISOString(),
+          })}\n\n`,
+        );
+        res.end();
+      }
+      return { images: [], id: '' };
+    }
+  }
 }

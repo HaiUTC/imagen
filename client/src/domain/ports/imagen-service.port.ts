@@ -9,6 +9,10 @@ export interface ImagenServicePort {
   editImage: (
     data: FormData
   ) => Promise<{ images: string[]; taskId: string; id: string }>;
+  upscaleImageStreaming: (
+    id: string,
+    onEvent: (event: any) => void
+  ) => Promise<void>;
   downloadImageGenerated: (data: {
     option: string;
     id: string;

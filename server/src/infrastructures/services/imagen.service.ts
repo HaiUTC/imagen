@@ -293,6 +293,43 @@ export const createImagenService = () => {
     }
   };
 
+  const upscaleImage = async (taskId: string, index: number, apiKey: string) => {
+    // Initialize cache if not already done
+    initializeApiKeyCache();
+
+    // Get available API key
+    const selectedApiKey = getAvailableApiKey();
+
+    // Set selected API key as active
+    apiKeyStatusCache.set(selectedApiKey, true);
+
+    let image = '';
+
+    const imageUpscale = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/submit/change`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        action: 'UPSCALE',
+        index,
+        taskId,
+      }),
+    }).then(async res => await res.json());
+
+    if (!imageUpscale.result) {
+      return '';
+    }
+
+    const { images } = await poolImageTask(imageUpscale.result, apiKey);
+    if (images[0].value) {
+      image = images[0].value;
+    }
+
+    return image;
+  };
+
   // Download ảnh từ taskId
   const downloadImageGenerated = async (taskId: string, index: number, apiKey: string) => {
     let image = '';
@@ -400,6 +437,7 @@ export const createImagenService = () => {
     magicPromptPerspectives,
     generateImagen,
     editImage,
+    upscaleImage,
     generateImagenMixed,
     downloadImageGenerated,
   };

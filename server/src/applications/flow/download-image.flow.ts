@@ -1,26 +1,61 @@
-import { imagenService } from '~/infrastructures/services/imagen.service';
+import sharp from 'sharp';
+import { s3Service } from '~/infrastructures/services/s3.service';
+import { uid } from '../utils/uid';
 
-export const downloadImageGeneratedFlow = async (option: string, id: string) => {
-  let images: string[] = [];
-
-  if (option === 'all') {
-    // Batch 1: Download images 1 and 2 concurrently
-    const [image1, image2] = await Promise.all([
-      imagenService.downloadImageGenerated(id, 1, process.env.VISION_DOWLOAD_API_KEY1!),
-      imagenService.downloadImageGenerated(id, 2, process.env.VISION_DOWLOAD_API_KEY2!),
-    ]);
-    images.push(image1, image2);
-
-    // Batch 2: Download images 3 and 4 concurrently
-    const [image3, image4] = await Promise.all([
-      imagenService.downloadImageGenerated(id, 3, process.env.VISION_DOWLOAD_API_KEY3!),
-      imagenService.downloadImageGenerated(id, 4, process.env.VISION_DOWLOAD_API_KEY4!),
-    ]);
-    images.push(image3, image4);
-  } else {
-    const image = await imagenService.downloadImageGenerated(id, +option, process.env.VISION_DOWLOAD_API_KEY1!);
-    images.push(image);
+async function splitImageIntoFour(imageUrl: string): Promise<string[]> {
+  // Download image from URL
+  const response = await fetch(imageUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image: ${response.statusText}`);
   }
 
-  return images;
+  const imageBuffer = Buffer.from(await response.arrayBuffer());
+
+  // Get image metadata
+  const input = sharp(imageBuffer);
+  const meta = await input.metadata();
+
+  if (!meta.width || !meta.height) {
+    throw new Error('Could not read image dimensions.');
+  }
+
+  const width = meta.width;
+  const height = meta.height;
+
+  // Half sizes; make right/bottom tiles consume the remainder to handle odd dims.
+  const halfW = Math.floor(width / 2);
+  const halfH = Math.floor(height / 2);
+
+  // Regions: [left, top, tileWidth, tileHeight]
+  const regions = [
+    { left: 0, top: 0, width: halfW, height: halfH }, // part1 (TL)
+    { left: halfW, top: 0, width: width - halfW, height: halfH }, // part2 (TR)
+    { left: 0, top: halfH, width: halfW, height: height - halfH }, // part3 (BL)
+    { left: halfW, top: halfH, width: width - halfW, height: height - halfH }, // part4 (BR)
+  ];
+
+  // Extract each region and upload to S3
+  const uploadPromises = regions.map(async (region, idx) => {
+    const extractedBuffer = await sharp(imageBuffer).extract(region).jpeg().toBuffer();
+
+    // Convert buffer to base64 for S3 upload
+    const base64Image = extractedBuffer.toString('base64');
+    const uniqueId = uid('generate_');
+
+    // Upload to S3
+    const uploadedUrl = await s3Service.uploadImage(base64Image, 'base64', uniqueId);
+    return uploadedUrl;
+  });
+
+  return await Promise.all(uploadPromises);
+}
+
+export const splitImageFlow = async (imageUrl: string): Promise<string[]> => {
+  try {
+    const splitImages = await splitImageIntoFour(imageUrl);
+    return splitImages;
+  } catch (error) {
+    console.error('Failed to split image:', error);
+    throw error;
+  }
 };

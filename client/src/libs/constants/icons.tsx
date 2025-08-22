@@ -7,6 +7,7 @@ export const ICONS = {
   FASHION: "fashion",
   VIDEO: "video",
   PREVIEW: "preview",
+  UPSCALE: "upscale",
   DOWNLOAD: "download",
   SAVE: "save",
   DELETE: "delete",
@@ -214,19 +215,20 @@ export const svgIcon = (icon: string) => {
 
   if (icon === ICONS.DOWNLOAD) {
     return (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        fill="none"
+        viewBox="0 0 20 20"
+      >
         <path
-          d="M8.59999 2.62791C8.59999 2.28113 8.33135 2 7.99999 2C7.66863 2 7.39999 2.28113 7.39999 2.62791L8.59999 2.62791ZM7.99999 10.3721L7.57575 10.8161C7.68823 10.9339 7.84087 11 7.99999 11C8.15911 11 8.31175 10.9339 8.42423 10.8161L7.99999 10.3721ZM10.8243 8.30444C11.0586 8.05922 11.0586 7.66171 10.8243 7.41649C10.59 7.17127 10.21 7.17127 9.97573 7.41649L10.8243 8.30444ZM6.02422 7.41649C5.7899 7.17127 5.41006 7.17127 5.17574 7.41649C4.94142 7.66171 4.94142 8.05922 5.17574 8.30444L6.02422 7.41649ZM7.39999 2.62791L7.39999 10.3721L8.59999 10.3721L8.59999 2.62791L7.39999 2.62791ZM8.42423 10.8161L10.8243 8.30444L9.97573 7.41649L7.57575 9.92812L8.42423 10.8161ZM8.42423 9.92812L6.02422 7.41649L5.17574 8.30444L7.57575 10.8161L8.42423 9.92812Z"
-          fill="currentColor"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="m14 8-4 4-4-4M10 3v9M17 13v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-1"
         ></path>
-        <rect
-          x="3"
-          y="12"
-          width="10"
-          height="1"
-          rx="0.5"
-          fill="currentColor"
-        ></rect>
       </svg>
     );
   }
@@ -447,6 +449,31 @@ export const svgIcon = (icon: string) => {
           strokeLinejoin="round"
           strokeWidth="1.5"
           d="M5.058 3.572 15.74 7.475c1.037.38 1.007 1.855-.044 2.191l-4.568 1.462-1.461 4.567c-.337 1.051-1.813 1.081-2.191.045L3.573 5.058c-.338-.926.56-1.824 1.485-1.486"
+        ></path>
+      </svg>
+    );
+  }
+
+  if (icon === ICONS.UPSCALE) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+      >
+        <path
+          stroke="currentColor"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="m15.865 8.135.55-.55a2 2 0 0 0 0-2.828l-1.172-1.171a2 2 0 0 0-2.829 0L4 12l-1 5 5-1 1.16-1.16"
+        ></path>
+        <path
+          fill="currentColor"
+          stroke="none"
+          d="M5.25 6.5a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5M16.596 12.363l-1.444-.542-.542-1.443c-.188-.504-1.018-.504-1.206 0l-.542 1.443-1.444.542a.645.645 0 0 0 0 1.206l1.444.542.542 1.444a.644.644 0 0 0 1.206 0l.542-1.444 1.444-.542a.645.645 0 0 0 0-1.206"
         ></path>
       </svg>
     );
