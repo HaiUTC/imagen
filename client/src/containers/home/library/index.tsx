@@ -179,9 +179,9 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
           >
             <div ref={masonryRef} className={styles.masonry}>
               {paginatedImages.data
-                .filter((imagen) => imagen.imagens && imagen.imagens.length > 0)
+                .filter((imagen) => imagen.status === "SUCCESS")
                 .map((imagen) => {
-                  const imageUrl = imagen.imagens[imagen.imagens.length - 1]; // Get last image
+                  const imageUrl = imagen.imagen; // Get last image
                   const gridRowSpan = imageHeights[imageUrl] || 20; // Default span
 
                   return (
@@ -196,6 +196,7 @@ export const Library: React.FC<LibraryProps> = ({ isSticky }) => {
                         src={imageUrl}
                         imagenId={imagen._id}
                         templateId={currentTemplateId}
+                        updatedAt={imagen.updatedAt}
                         onImageLoad={handleImageLoad}
                       />
                     </div>

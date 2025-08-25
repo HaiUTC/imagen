@@ -2,19 +2,16 @@ import {
   useRef,
   useImperativeHandle,
   forwardRef,
-  useEffect,
   useState,
+  useEffect,
 } from "react";
 import styles from "./collections-carousel.module.css";
 
-interface CollectionsData {
-  format: "generate" | "edit";
-  taskId: string;
-  prompt: string;
-  magicPrompt: string;
-  aspectRatio: string;
-  referenceImage: string[];
-  imagens: string[];
+export interface CollectionsData {
+  _id: string;
+  status: string;
+  format: string;
+  imagen: string;
 }
 
 export interface CarouselRef {
@@ -36,14 +33,12 @@ export const CollectionsCarousel = forwardRef<
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Removed checkScrollPosition since no navigation arrows needed
-
   // Navigate to next item
   const scrollNext = () => {
     if (currentIndex < collections.length - 1) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
-      onCollectionSelect(collections[nextIndex]);
+      // onCollectionSelect(transformCollection(collections[nextIndex]));
       scrollToIndex(nextIndex);
     }
   };
@@ -53,16 +48,14 @@ export const CollectionsCarousel = forwardRef<
     if (currentIndex > 0) {
       const prevIndex = currentIndex - 1;
       setCurrentIndex(prevIndex);
-      onCollectionSelect(collections[prevIndex]);
+      // onCollectionSelect(transformCollection(collections[prevIndex]));
       scrollToIndex(prevIndex);
     }
   };
 
   // Update current index when selectedCollectionId changes
   useEffect(() => {
-    const index = collections.findIndex(
-      (c) => c.taskId === selectedCollectionId
-    );
+    const index = collections.findIndex((c) => c._id === selectedCollectionId);
     if (index !== -1 && index !== currentIndex) {
       setCurrentIndex(index);
       scrollToIndex(index);
@@ -102,14 +95,14 @@ export const CollectionsCarousel = forwardRef<
   useEffect(() => {
     if (collections.length > 0) {
       const index = collections.findIndex(
-        (c) => c.taskId === selectedCollectionId
+        (c) => c._id === selectedCollectionId
       );
       setCurrentIndex(index !== -1 ? index : 0);
     }
   }, [collections, selectedCollectionId]);
 
   const handleCollectionClick = (collection: CollectionsData) => {
-    const index = collections.findIndex((c) => c.taskId === collection.taskId);
+    const index = collections.findIndex((c) => c._id === collection._id);
     if (index !== -1) {
       setCurrentIndex(index);
       onCollectionSelect(collection);
@@ -119,22 +112,16 @@ export const CollectionsCarousel = forwardRef<
 
   return (
     <div className={styles.carousel_container}>
-      <div
-        ref={scrollContainerRef}
-        className={styles.carousel_content}
-      >
+      <div ref={scrollContainerRef} className={styles.carousel_content}>
         {collections.map((collection) => (
           <div
-            key={collection.taskId}
+            key={collection._id}
             className={`${styles.carousel_item} ${
-              selectedCollectionId === collection.taskId ? styles.selected : ""
+              selectedCollectionId === collection._id ? styles.selected : ""
             }`}
             onClick={() => handleCollectionClick(collection)}
             style={{
-              backgroundImage: `url(${
-                collection.imagens[collection.imagens.length - 1] ||
-                collection.referenceImage[collection.referenceImage.length - 1]
-              })`,
+              backgroundImage: `url(${collection.imagen})`,
             }}
           ></div>
         ))}

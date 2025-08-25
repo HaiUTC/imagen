@@ -2,18 +2,7 @@ import { useRef } from "react";
 import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import styles from "./collections-image-preview.module.css";
 
-interface CollectionsData {
-  format: "generate" | "edit";
-  taskId: string;
-  prompt: string;
-  magicPrompt: string;
-  aspectRatio: string;
-  referenceImage: string[];
-  imagens: string[];
-}
-
 interface CollectionsImagePreviewProps {
-  data: CollectionsData;
   imagePreview: string;
   onBackClick: () => void;
 }

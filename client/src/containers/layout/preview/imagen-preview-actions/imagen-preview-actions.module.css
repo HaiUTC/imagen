@@ -1,20 +1,25 @@
 .button {
   background: #fff;
+  display: flex;
   align-items: center;
+  justify-content: center;
   border: none;
   border-radius: 6px;
-  column-gap: 6px;
+  column-gap: 4px;
   cursor: pointer;
-  display: flex;
   font-family: Inter, Helvetica, Arial, sans-serif;
   font-size: 12px;
   font-weight: 400;
-  justify-content: center;
   line-height: 16px;
   padding: 7px 12px;
   -webkit-transition: background 0.3s ease;
   transition: background 0.3s ease;
   box-shadow: 0 0 10px 0 rgba(192, 196, 205, 0.3);
+}
+
+.button :global(.Polaris-Spinner--sizeSmall svg) {
+  width: 16px;
+  height: 16px;
 }
 
 .button:hover {

@@ -7,6 +7,7 @@ interface ImagenLibraryPreviewProps {
   src: string;
   imagenId?: string;
   templateId?: string | null;
+  updatedAt?: string;
   onImageLoad?: (
     imageUrl: string,
     naturalHeight: number,
@@ -14,10 +15,38 @@ interface ImagenLibraryPreviewProps {
   ) => void;
 }
 
+const formatTimeAgo = (updatedAt?: string): string => {
+  if (!updatedAt) {
+    return "1m ago";
+  }
+
+  const now = new Date();
+  const updatedDate = new Date(updatedAt);
+  const diffMs = now.getTime() - updatedDate.getTime();
+
+  const diffMinutes = Math.round(diffMs / (1000 * 60));
+  const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  // Check if same day
+  const isSameDay = diffHours < 24;
+
+  if (isSameDay) {
+    if (diffMinutes < 60) {
+      return `${diffMinutes}m ago`;
+    } else {
+      return `${diffHours}h ago`;
+    }
+  } else {
+    return `${diffDays}d ago`;
+  }
+};
+
 export const ImagenLibraryPreview: React.FC<ImagenLibraryPreviewProps> = ({
   src,
   imagenId,
   templateId,
+  updatedAt,
   onImageLoad,
 }) => {
   const [isHover, setIsHover] = useState<boolean>(false);
@@ -76,7 +105,7 @@ export const ImagenLibraryPreview: React.FC<ImagenLibraryPreviewProps> = ({
                   <span>Soul</span>
                 </Text>
                 <Text as="span" variant="bodySm">
-                  <span>10m ago</span>
+                  <span>{formatTimeAgo(updatedAt)}</span>
                 </Text>
               </Box>
             </InlineStack>

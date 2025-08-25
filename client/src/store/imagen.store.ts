@@ -1,4 +1,24 @@
 import { create } from "zustand";
+
+export interface ImagenDetailData {
+  format: keyof ImagenValue;
+  data: {
+    prompt: string;
+    n: number;
+    aspect_ratio: string;
+    style: string;
+    reference?: string[];
+    perspective?: {
+      image: string;
+      analytic: string;
+    };
+    magic_prompt: string;
+  };
+  taskId: string;
+  imagens: string[];
+  status: string;
+}
+
 export interface ImagenValue {
   generate: GenerateValue;
   edit: EditValue;
@@ -204,5 +224,24 @@ export const useImagenStore = create<ImagenStore>((set) => ({
         },
       },
     });
+  },
+}));
+
+interface ImagenDetailStore {
+  imagenDetail?: ImagenDetailData;
+  loading: boolean;
+  setImagenDetail: (template: ImagenDetailData) => void;
+  setLoading: (loading: boolean) => void;
+}
+
+export const useImagenDetailStore = create<ImagenDetailStore>((set) => ({
+  imagenDetail: undefined,
+  loading: false,
+
+  setImagenDetail: (template?: ImagenDetailData) => {
+    set({ imagenDetail: template });
+  },
+  setLoading: (loading: boolean) => {
+    set({ loading });
   },
 }));

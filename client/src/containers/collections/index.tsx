@@ -1,43 +1,30 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Fragment } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { CollectionsImagePreview } from "./collections-image-preview";
 import { CollectionsDetails } from "./collections-details";
-import { CollectionsCarousel, type CarouselRef } from "./collections-carousel";
+import {
+  CollectionsCarousel,
+  type CarouselRef,
+  type CollectionsData,
+} from "./collections-carousel";
 import { getImagensPaginatedFlow } from "../../flow/template/get-templates.flow";
 import { useTemplateStore } from "../../store/template.store";
-import type { PaginatedImagen } from "../../domain/ports/template-service.port";
 import styles from "./collections.module.css";
 import { GenerateField } from "../home/generate-field";
 import { Box } from "@shopify/polaris";
 import { CollectionGeneratingFloat } from "./collection-generating-float";
-import { useImagenStore } from "../../store/imagen.store";
+import { useImagenDetailStore, useImagenStore } from "../../store/imagen.store";
+import { getImagenFlow } from "../../flow/template/get-imagen.flow";
 
-interface CollectionsData {
-  format: "generate" | "edit";
-  taskId: string;
-  prompt: string;
-  magicPrompt: string;
-  aspectRatio: string;
-  referenceImage: string[];
-  imagens: string[];
-}
-
-interface CollectionsContainerProps {
-  data?: CollectionsData;
-}
-
-export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
-  data,
-}) => {
+export const CollectionsContainer: React.FC = () => {
   const navigate = useNavigate();
   const { id: imagenId } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const templateId = searchParams.get("templateId");
-  const { paginatedImages, paginationLoading } = useTemplateStore();
 
-  const [selectedData, setSelectedData] = useState<CollectionsData | null>(
-    null
-  );
+  const { imagenDetail, loading } = useImagenDetailStore();
+  const { paginatedImages } = useTemplateStore();
+
   const [imagePreviewSelected, setImagePreviewSelected] = useState<string>("");
   const [selectedCollectionId, setSelectedCollectionId] = useState<string>("");
   const [isSticky, setIsSticky] = useState<boolean>(true);
@@ -47,28 +34,16 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
   const dataLoadedRef = useRef<string>(""); // Track loaded templateId
   const { clearData } = useImagenStore.getState();
 
-  // Transform PaginatedImagen to CollectionsData
-  const transformToCollectionsData = (
-    imagen: PaginatedImagen
-  ): CollectionsData => ({
-    format: imagen.format,
-    taskId: imagen.taskId,
-    prompt: imagen.data.prompt,
-    magicPrompt: imagen.data.magic_prompt || "",
-    aspectRatio: imagen.data.aspectRatio || "1:1",
-    referenceImage: imagen.data.reference || [],
-    imagens: imagen.imagens,
-  });
-
   // Event handlers
   const handleBackClick = () => {
     navigate("/");
   };
 
   const handleCollectionSelect = (collection: CollectionsData) => {
-    setSelectedData(collection);
-    setSelectedCollectionId(collection.taskId);
-    setImagePreviewSelected(collection.imagens[0]);
+    navigate(`/i/${collection._id}`);
+    getImagenFlow(collection._id);
+    setSelectedCollectionId(collection._id);
+    setImagePreviewSelected(collection.imagen);
   };
 
   useEffect(() => clearData, []);
@@ -98,49 +73,19 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
     }
   }, [templateId]);
 
-  // Set selected data when images are loaded
-  useEffect(() => {
-    if (paginatedImages.data.length > 0 && !initializedRef.current) {
-      // If we have an imagenId, try to find that specific imagen
-      if (imagenId) {
-        const targetImagen = paginatedImages.data.find(
-          (img) => img._id === imagenId
-        );
-        if (targetImagen) {
-          const targetData = transformToCollectionsData(targetImagen);
-          setSelectedData(targetData);
-          setSelectedCollectionId(targetData.taskId);
-          setImagePreviewSelected(targetData.imagens[0]);
-          initializedRef.current = true;
-        } else {
-          // If specific imagen not found, fallback to first image
-          const firstImage = transformToCollectionsData(
-            paginatedImages.data[0]
-          );
-          setSelectedData(firstImage);
-          setSelectedCollectionId(firstImage.taskId);
-          initializedRef.current = true;
-        }
-      } else {
-        // No specific ID, just use the first one
-        const firstImage = transformToCollectionsData(paginatedImages.data[0]);
-        setSelectedData(firstImage);
-        setSelectedCollectionId(firstImage.taskId);
-        initializedRef.current = true;
-      }
-    }
-  }, [paginatedImages.data, imagenId]);
-
   // Reset initialization when imagenId changes (navigating to different image)
   useEffect(() => {
     initializedRef.current = false;
-    setSelectedData(null);
   }, [imagenId]);
 
   // Reset data loaded ref when templateId changes
   useEffect(() => {
     dataLoadedRef.current = "";
     initializedRef.current = false;
+
+    if (imagenId) {
+      getImagenFlow(imagenId);
+    }
   }, [templateId]);
 
   // Handle keyboard navigation
@@ -165,14 +110,10 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
   }, []);
 
   // Use provided data or fallback to first paginated image
-  const displayData = data || selectedData;
-  const imagePreview =
-    imagePreviewSelected ||
-    displayData?.imagens[0] ||
-    displayData?.referenceImage[0] ||
-    "";
+  const displayData = imagenDetail;
+  const imagePreview = imagePreviewSelected || displayData?.imagens[0] || "";
 
-  if (!displayData && paginatedImages.data.length === 0 && !paginationLoading) {
+  if (!displayData?.imagens) {
     return (
       <div className={styles.collections_container}>
         <div className={styles.empty_state}>
@@ -183,7 +124,7 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
     );
   }
 
-  if (paginationLoading && paginatedImages.data.length === 0) {
+  if (loading && !imagenDetail?.imagens.length) {
     return (
       <div className={styles.collections_container}>
         <div className={styles.loading_state}>
@@ -204,7 +145,12 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
     );
   }
 
-  const collections = paginatedImages.data.map(transformToCollectionsData);
+  const collections = paginatedImages.data.map((imagen) => ({
+    _id: imagen._id,
+    status: imagen.status,
+    format: imagen.format,
+    imagen: imagen.imagen,
+  }));
 
   return (
     <Box>
@@ -214,22 +160,29 @@ export const CollectionsContainer: React.FC<CollectionsContainerProps> = ({
         setIsSticky={setIsSticky}
       />
       <div className={styles.collections_container}>
-        <div ref={mainImageRef} className={styles.main_preview}>
-          <CollectionsImagePreview
-            data={displayData}
-            imagePreview={imagePreview}
-            onBackClick={handleBackClick}
-          />
-        </div>
+        {!displayData ? (
+          <div className={styles.loading_state}>
+            <p>Not found data</p>
+          </div>
+        ) : (
+          <Fragment>
+            <div ref={mainImageRef} className={styles.main_preview}>
+              <CollectionsImagePreview
+                imagePreview={imagePreview}
+                onBackClick={handleBackClick}
+              />
+            </div>
 
-        <div className={styles.details_panel}>
-          <CollectionsDetails
-            data={displayData}
-            imagePreview={imagePreview}
-            setImagePreviewSelected={setImagePreviewSelected}
-            setIsSticky={setIsSticky}
-          />
-        </div>
+            <div className={styles.details_panel}>
+              <CollectionsDetails
+                data={displayData}
+                imagePreview={imagePreview}
+                setImagePreviewSelected={setImagePreviewSelected}
+                setIsSticky={setIsSticky}
+              />
+            </div>
+          </Fragment>
+        )}
 
         <CollectionsCarousel
           ref={carouselRef}

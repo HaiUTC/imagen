@@ -15,6 +15,7 @@ const getAllTemplates = async () => {
 
 const getTemplateById = async (id: string) => {
   try {
+    console.log('id: ', id);
     const template = await templateRepository.findById(id);
     if (!template) {
       throw new Error('Template not found');

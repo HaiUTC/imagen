@@ -11,17 +11,8 @@ export interface Template {
 export interface PaginatedImagen {
   _id: string;
   format: "generate" | "edit";
-  data: {
-    prompt: string;
-    aspectRatio?: string;
-    n?: number;
-    style?: string;
-    reference?: string[];
-    magic_prompt?: string;
-  };
-  taskId: string;
-  imagens: string[];
-  createdAt: string;
+  imagen: string;
+  status: string;
   updatedAt: string;
 }
 

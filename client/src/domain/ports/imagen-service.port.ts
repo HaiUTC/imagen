@@ -1,4 +1,7 @@
+import type { ImagenDetailData } from "../../store/imagen.store";
+
 export interface ImagenServicePort {
+  getImagen: (id: string) => Promise<ImagenDetailData>;
   generateImage: (
     data: FormData
   ) => Promise<{ images: string[]; taskId: string; id: string }>;

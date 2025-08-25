@@ -1,4 +1,4 @@
-import { Controller, Post, Request, Route, Tags, FormField, UploadedFiles, Query } from 'tsoa';
+import { Controller, Post, Request, Route, Tags, FormField, UploadedFiles } from 'tsoa';
 import { Request as RequestExpress, Response as ResponseExpress } from 'express';
 import { GenerateImagePort } from '~/domains/ports/imagen.port';
 import { GenerateImageService } from '~/controllers/generate-image.controller';

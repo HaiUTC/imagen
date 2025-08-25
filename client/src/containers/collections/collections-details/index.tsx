@@ -14,19 +14,10 @@ import { ICONS, svgIcon } from "../../../libs/constants/icons";
 import { urlToFile } from "../../../libs/utils/url-2-file";
 import { useImagenStore, type ImagenValue } from "../../../store/imagen.store";
 import styles from "./collections-details.module.css";
-
-interface CollectionsData {
-  format: "generate" | "edit";
-  taskId: string;
-  prompt: string;
-  magicPrompt: string;
-  aspectRatio: string;
-  referenceImage: string[];
-  imagens: string[];
-}
+import type { ImagenDetailData } from "../../../store/imagen.store";
 
 interface CollectionsDetailsProps {
-  data: CollectionsData;
+  data: ImagenDetailData;
   imagePreview: string;
   setImagePreviewSelected: (image: string) => void;
   setIsSticky: (isSticky: boolean) => void;
@@ -131,7 +122,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
             <Tooltip content={isCopied ? "Copied" : "Copy"} dismissOnMouseOut>
               <button
                 className={styles.button}
-                onClick={() => handleCopyText(data.prompt, 1)}
+                onClick={() => handleCopyText(data.data.prompt, 1)}
               >
                 {isCopied === 1 ? svgIcon(ICONS.TICK) : svgIcon(ICONS.COPY)}
               </button>
@@ -139,7 +130,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
             <Tooltip content="Add" dismissOnMouseOut>
               <button
                 className={styles.button}
-                onClick={() => handleOnChangeValue(data.prompt)}
+                onClick={() => handleOnChangeValue(data.data.prompt)}
               >
                 {svgIcon(ICONS.ADD)}
               </button>
@@ -148,7 +139,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
         </div>
         <div className={styles.prompt_content}>
           <Text as="span" variant="bodyMd">
-            {data.prompt}
+            {data.data.prompt}
           </Text>
         </div>
       </div>
@@ -163,7 +154,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
             <Tooltip content={isCopied ? "Copied" : "Copy"} dismissOnMouseOut>
               <button
                 className={styles.button}
-                onClick={() => handleCopyText(data.magicPrompt, 2)}
+                onClick={() => handleCopyText(data.data.magic_prompt, 2)}
               >
                 {isCopied === 2 ? svgIcon(ICONS.TICK) : svgIcon(ICONS.COPY)}
               </button>
@@ -171,7 +162,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
             <Tooltip content="Add" dismissOnMouseOut>
               <button
                 className={styles.button}
-                onClick={() => handleOnChangeValue(data.magicPrompt)}
+                onClick={() => handleOnChangeValue(data.data.magic_prompt)}
               >
                 {svgIcon(ICONS.ADD)}
               </button>
@@ -185,7 +176,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
             }
           >
             <Text as="span" variant="bodyMd">
-              {data.magicPrompt}
+              {data.data.magic_prompt}
             </Text>
           </div>
           <div>
@@ -200,13 +191,13 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
       </div>
 
       {/* Reference Images */}
-      {data.referenceImage.length > 0 && (
+      {data.data.reference && data.data.reference.length > 0 && (
         <div className={styles.images_section}>
           <Text as="h6" variant="bodyMd" fontWeight="semibold">
             Reference Images
           </Text>
           <div className={styles.images_grid}>
-            {data.referenceImage.map((imageUrl, index) => (
+            {data.data.reference?.map((imageUrl, index) => (
               <div key={index} className={styles.grid_image_wrapper}>
                 <img
                   src={imageUrl}
@@ -301,7 +292,7 @@ export const CollectionsDetails: React.FC<CollectionsDetailsProps> = ({
             </Text>
             <Box paddingBlock="200">
               <Text as="span" variant="bodyMd">
-                {data.aspectRatio}
+                {data.data.aspect_ratio}
               </Text>
             </Box>
           </Box>

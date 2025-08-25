@@ -3,6 +3,12 @@ import { streamingResponse } from "../../libs/utils/streaming";
 
 const createImagenService = (): ImagenServicePort => {
   return {
+    getImagen: async (id: string) => {
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_BE_CDN}/imagens/${id}`
+      );
+      return response.json();
+    },
     generateImage: async (data: FormData) => {
       const response = await fetch(
         `${import.meta.env.VITE_APP_BE_CDN}/generative/image`,

@@ -32,6 +32,13 @@ const fetchImagenesWithPagination = async (conditions: any, limit: number): Prom
   return (await TemplateModel.db
     .collection('imagens')
     .find(conditions)
+    .project({
+      _id: 1,
+      format: 1,
+      imagen: { $arrayElemAt: ['$imagens', -1] },
+      status: 1,
+      updatedAt: 1,
+    })
     .sort({ updatedAt: -1 })
     .limit(limit + 1)
     .toArray()) as unknown as TemplateValueFully[];
@@ -89,7 +96,7 @@ const createTemplateRepository = () => ({
     return templates;
   },
   findById: async (id: string) => {
-    const template = await TemplateModel.findById(id).populate('imagen');
+    const template = await TemplateModel.findById(new Types.ObjectId(id)).populate('imagen');
     return template;
   },
   findByIdNoPopulate: async (id: string) => {

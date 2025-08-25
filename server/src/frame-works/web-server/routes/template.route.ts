@@ -25,7 +25,7 @@ export class TemplateController extends Controller {
   }
 
   /**
-   * Get template by ID
+   * Get list imagens paginated based on template id
    * @summary Retrieve list imagens paginated based on template id
    */
   @Get('/imagens')
@@ -55,6 +55,8 @@ export class TemplateController extends Controller {
   public async getTemplateById(@Path() id: string): Promise<any> {
     try {
       const template = await TemplateService.getTemplateById(id);
+      console.log('template: ', template);
+      console.log('id:', id);
       if (!template) {
         this.setStatus(404);
         throw new Error('Template not found');
