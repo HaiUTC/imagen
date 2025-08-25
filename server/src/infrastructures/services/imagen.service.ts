@@ -330,56 +330,6 @@ export const createImagenService = () => {
     return image;
   };
 
-  // Download ảnh từ taskId
-  const downloadImageGenerated = async (taskId: string, index: number, apiKey: string) => {
-    let image = '';
-
-    const dataUpscaleImagenMixed = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/mj/submit/change`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        action: 'UPSCALE',
-        index,
-        taskId,
-      }),
-    }).then(async res => await res.json());
-
-    console.log('dataUpscaleImagenMixed: ', dataUpscaleImagenMixed);
-
-    if (!dataUpscaleImagenMixed.result) {
-      return '';
-    }
-
-    let status = 'IN_PROGRESS';
-
-    await new Promise(resolve => setTimeout(resolve, 30000));
-
-    while (status === 'IN_PROGRESS') {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      const statusCheck = await fetch(`${process.env.OPENAI_BASE_URL?.replace('/v1', '')}/task/${dataUpscaleImagenMixed.result}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.VISION_API_KEY}`,
-        },
-      }).then(res => res.json());
-      console.log('statusCheck: ', statusCheck);
-      if (statusCheck.status === 'FAILURE') {
-        return '';
-      }
-
-      status = statusCheck.status !== 'SUCCESS' ? 'IN_PROGRESS' : 'SUCCESS';
-      if (status === 'SUCCESS') {
-        image = statusCheck.task_result.images[0].url;
-      }
-    }
-
-    return image;
-  };
-
   const poolImageTask = async (taskId: string, apiKey: string, onEvent?: (progress: number) => void) => {
     let status = 'IN_PROGRESS';
     let failCount = 0;
@@ -439,7 +389,6 @@ export const createImagenService = () => {
     editImage,
     upscaleImage,
     generateImagenMixed,
-    downloadImageGenerated,
   };
 };
 
